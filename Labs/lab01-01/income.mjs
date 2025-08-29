@@ -11,32 +11,32 @@ let taxedIncome = parseFloat(taxableIncome)
 let taxes = 0;
 
 if (filingStatus == 1) {
-  if (taxedIncome <= 11925) {
+  if (taxedIncome <= 11600) {
     taxes = taxedIncome * .1
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
-  else if (taxedIncome > 11925 && taxedIncome <= 48475){
-    taxes = taxedIncome * .12
+  else if (taxedIncome > 11600 && taxedIncome <= 47150){
+    taxes = 1160 + ((taxedIncome - 11600) *.12)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
-  else if (taxedIncome > 48475 && taxedIncome <= 103350){
-    taxes = taxedIncome * .22
+  else if (taxedIncome > 47150 && taxedIncome <= 100525){
+    taxes = 5426 + ((taxedIncome - 47150) *.22)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
-  else if (taxedIncome > 103350 && taxedIncome <= 197300){
-    taxes = taxedIncome * .24
+  else if (taxedIncome > 100525 && taxedIncome <= 191950){
+    taxes = 17168.5 + ((taxedIncome - 100525) *.24)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
-  else if (taxedIncome > 197300 && taxedIncome <= 250525){
-    taxes = taxedIncome * .32
+  else if (taxedIncome > 191950 && taxedIncome <= 243725){
+    taxes = 39110.5 + ((taxedIncome - 191950) *.32)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
-  else if (taxedIncome > 250525 && taxedIncome <= 626350){
-    taxes = taxedIncome * .35
+  else if (taxedIncome > 243725 && taxedIncome <= 609350){
+    taxes = 55678.5 + ((taxedIncome - 243725) *.35)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
-  else if (taxedIncome > 626350){
-    taxes = taxedIncome * .37
+  else if (taxedIncome > 609350){
+    taxes = 183647.25 + ((taxedIncome - 609350) *.37)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome == NaN || taxedIncome <= 0 )
@@ -50,27 +50,27 @@ else if (filingStatus == 2) {
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome > 23850 && taxedIncome <= 96950){
-    taxes = taxedIncome * .12
+    taxes = 2385 + ((taxedIncome - 23850) *.12)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome > 96950 && taxedIncome <= 206700){
-    taxes = taxedIncome * .22
+    taxes = 11157 + ((taxedIncome - 96950) *.22)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome > 206700 && taxedIncome <= 394600){
-    taxes = taxedIncome * .24
+    taxes = 35302 + ((taxedIncome - 206700) *.24)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome > 394600 && taxedIncome <= 501050){
-    taxes = taxedIncome * .32
+    taxes = 80398 + ((taxedIncome - 394600) *.32)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome > 501050 && taxedIncome <= 751600){
-    taxes = taxedIncome * .35
+    taxes = 114462 + ((taxedIncome - 501050) *.35)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome > 751600){
-    taxes = taxedIncome * .37
+    taxes = 202154.5 + ((taxedIncome - 751600) *.37)
     console.log(`Your income is $${Math.ceil(taxedIncome)} and your taxes paid are $${Math.ceil(taxes)}`)
   }
   else if (taxedIncome == NaN || taxedIncome <= 0 )
