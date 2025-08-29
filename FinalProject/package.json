@@ -1,0 +1,29 @@
+{
+  "name": "finalproject",
+  "version": "1.0.0",
+  "description": "Issue Tracker for Tracking software bugs",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "start-dev": "nodemon -r dotenv/config index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/RankenTechnicalCollege/all-coursework-BrodyBoyd"
+  },
+  "keywords": [
+    "Issue",
+    "Tracker",
+    "Brody",
+    "Boyd"
+  ],
+  "author": "Brody Boyd",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
