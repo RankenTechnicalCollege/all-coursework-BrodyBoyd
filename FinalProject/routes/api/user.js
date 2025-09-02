@@ -34,7 +34,7 @@ router.post('/register', (req, res) => {
     res.status(400).send('User already exists')
     return;
   }else {
-      newUser.userID = users.length + 1;
+      newUser.userId = users.length + 1;
       if (!newUser.email) {
         res.status(400).send('Email is required')
         return;
@@ -57,8 +57,64 @@ router.post('/register', (req, res) => {
       }
       users.push(newUser);
       res.status(200).json({message: `User ${newUser.givenName} added successfully`})
-}
+    }
+});
+
+router.post('/login', (req,res) => {
+  const user = req.body;
+
+  if (!user.email) {
+    res.status(400).send('Email is required');
+    return;
+  }
+  else if (!user.password) {
+    res.status(400).send('Password is required');
+    return;
+  }
+  else {
+    const searchUser = users.find(u => u.email == user.email && u.password == user.password);
+    if (searchUser){
+      res.status(200).json({message: 'User logged in successfully'});
+    }
+    else {
+      res.status(401).send('Invalid credentials');
+    }
+  }
 })
+
+router.put('/:userId', (req,res) => {
+  const id = req.params.userId;
+  const userToUpdate = users.find(user => user.userId == id);
+
+  const updatedUser = req.body;
+
+  if(userToUpdate)
+  {
+    for (const key in updatedUser){
+      userToUpdate[key] = updatedUser[key];
+    }
+    const index = users.findIndex(user => user.userId == id);
+  if(index != -1){
+    users[index] = userToUpdate;
+  }
+    res.status(200).send(`User ${id} updated successfully`);
+  }
+  else {
+    res.status(404).send('user not found');
+  }
+});
+
+router.delete('/:userId', (req,res) => {
+  const id = req.params.userId;
+  const index = users.findIndex(user => user.userId == id);
+  if (index != -1){
+    users.splice(index,1);
+    res.status(200).send(`User ${id} deleted successfully`);
+  }
+  else {
+    res.status(404).send('User not found');
+  }
+});
 
 
 

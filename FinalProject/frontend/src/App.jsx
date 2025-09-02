@@ -7,7 +7,7 @@ function App() {
 
   return (
     <>
-      <h1>Brody Boyd - Issue Tracker 2025!</h1>
+      <h1>Brody Boyd - Issue Tracker rrf!</h1>
     </>
   )
 }
