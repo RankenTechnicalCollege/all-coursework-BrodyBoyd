@@ -1,0 +1,23 @@
+{
+  "name": "lawnconnectmern",
+  "version": "1.0.0",
+  "description": "mern app for lawn mowers",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --env-file .env index.js"
+  },
+  "keywords": [
+    "Lawn",
+    "Connect",
+    "Marketplace",
+    "LawnCare"
+  ],
+  "author": "Brody Boyd",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^4.4.1",
+    "express": "^5.1.0"
+  }
+}

@@ -141,8 +141,24 @@ router.put('/:bugId/assign', requireKey('assignedToUserId'), requireKey('assigne
       }
 });
 
-router.put('/:bugId/close', (req,res) => {
-
+router.put('/:bugId/close', requireKey('closed'), (req,res) => {
+  const id = req.params.bugId;
+  const bugToClose = bugs.find(bug => bug.bugId == id);
+  const closeStatus = req.body
+      if(bugToClose)
+      {
+          for (const key in closeStatus){
+            bugToClose[key] = closeStatus[key];
+          }
+            const index = bugs.findIndex(bug => bug.bugId == id);
+          if(index != -1){
+            bugs[index] = bugToClose;
+          }
+          res.status(200).send(`Bug Closed!`);
+        }
+      else {
+        res.status(404).send(`Bug ${bugId} not found`);
+      }
 });
 
 export { router as BugRouter }
