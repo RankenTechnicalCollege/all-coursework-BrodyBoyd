@@ -7,11 +7,13 @@ const debugBug = debug('app:BugRouter');
 router.use(express.urlencoded({extended:false}));
 
 const bugs = [
-{ bugId:1, title: 'SYSTEM IS BROKEN', description: 'literally wont even open', stepsToReproduce: 'try and open app', classification: 'UI', classifiedOn: '-', lastUpdated: '-', assignedToUserId: '-', assignedToUserName: '-', assignedOn: '-', closed: '', closedOn: '' },
-{ bugId:2, title: 'Clicking log in buys 4 years worth of disney+', description: 'I clicked the login button and instantly 4 years of Disney+ were purchased from my card', stepsToReproduce: 'Try and log in', classification: 'Malware?', classifiedOn: '-', lastUpdated: '-', assignedToUserId: '-', assignedToUserName: '-', assignedOn: '-', closed: '', closedOn: '' },
-{ bugId:3, title: 'Click does not work', description: 'Unable to click any button after logging in', stepsToReproduce: 'Log in', classification: 'UI', classifiedOn: '-', lastUpdated: '-', assignedToUserId: '-', assignedToUserName: '-', assignedOn: '-', closed: '', closedOn: '' }
+{ bugId:1, title: 'SYSTEM IS BROKEN', description: 'literally wont even open', stepsToReproduce: 'try and open app', creationDate: '', classification: 'UI', classifiedOn: '-', lastUpdated: '-', assignedToUserId: '-', assignedToUserName: '-', assignedOn: '-', closed: '', closedOn: '' },
+{ bugId:2, title: 'Clicking log in buys 4 years worth of disney+', description: 'I clicked the login button and instantly 4 years of Disney+ were purchased from my card', stepsToReproduce: 'Try and log in', creationDate: '',  classification: 'Malware?', classifiedOn: '-', lastUpdated: '-', assignedToUserId: '-', assignedToUserName: '-', assignedOn: '-', closed: '', closedOn: '' },
+{ bugId:3, title: 'Click does not work', description: 'Unable to click any button after logging in', stepsToReproduce: 'Log in', creationDate: '',  classification: 'UI', classifiedOn: '-', lastUpdated: '-', assignedToUserId: '-', assignedToUserName: '-', assignedOn: '-', closed: '', closedOn: '' }
 
 ];
+
+const currentDate = new Date()
 
 function requireKey(keyName) {
         return (req, res, next) => {
@@ -49,6 +51,7 @@ router.post('/new', (req,res) => {
     return;
   }else {
       newBug.bugId = bugs.length + 1;
+      newBug.creationDate = currentDate.toLocaleDateString();
       if (!newBug.title) {
         res.status(400).type('text/plain').send('Title is Required')
         return;
@@ -96,10 +99,15 @@ router.put('/:bugId/classify', requireKey('classification'), (req,res) => {
   //MAKE CLASSIFICATION TYPE
   if(bugToUpdate)
   {
+    
+    bugToUpdate.lastUpdated = currentDate.toLocaleDateString();
+    bugToUpdate.classifiedOn = currentDate.toLocaleDateString();
     for (const key in newClassification){
       bugToUpdate[key] = newClassification[key];
     }
     const index = bugs.findIndex(bug => bug.bugId == id);
+
+
   if(index != -1){
     bugs[index] = bugToUpdate;
   }
@@ -116,6 +124,8 @@ router.put('/:bugId/assign', requireKey('assignedToUserId'), requireKey('assigne
   const newAssignments = req.body
       if(bugToAssign)
       {
+        bugToAssign.lastUpdated = currentDate.toLocaleDateString();
+        bugToAssign.assignedOn = currentDate.toLocaleDateString();
         if (!newAssignments.assignedToUserId) {
           res.status(400).type('text/plain').send('User Id is required to be assigned')
           return;
@@ -126,6 +136,7 @@ router.put('/:bugId/assign', requireKey('assignedToUserId'), requireKey('assigne
           } 
         else 
         {
+          
           for (const key in newAssignments){
             bugToAssign[key] = newAssignments[key];
           }
@@ -144,20 +155,23 @@ router.put('/:bugId/assign', requireKey('assignedToUserId'), requireKey('assigne
 router.put('/:bugId/close', requireKey('closed'), (req,res) => {
   const id = req.params.bugId;
   const bugToClose = bugs.find(bug => bug.bugId == id);
-  const closeStatus = req.body
+  const closed = req.body
       if(bugToClose)
       {
-          for (const key in closeStatus){
-            bugToClose[key] = closeStatus[key];
+        bugToClose.closedOn = currentDate.toLocaleDateString();
+        bugToClose.lastUpdated = currentDate.toLocaleDateString();
+          for (const key in closed){
+            bugToClose[key] = closed[key];
           }
             const index = bugs.findIndex(bug => bug.bugId == id);
           if(index != -1){
             bugs[index] = bugToClose;
+            
           }
-          res.status(200).send(`Bug Closed!`);
+          
         }
       else {
-        res.status(404).send(`Bug ${bugId} not found`);
+        res.status(404).send(`Bug ${id} not found`);
       }
 });
 

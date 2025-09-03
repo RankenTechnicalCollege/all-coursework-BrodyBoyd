@@ -6,9 +6,9 @@ import debug from 'debug';
 const debugUser = debug('app:User');
 
 const users = [
-{ userId:1, username: 'user1', password: 'password1'},
-{ userId:2, username: 'user2', password: 'password2'},
-{ userId:3, username: 'user3', password: 'password3'},
+{ userId:1, username: 'John Cena', password: 'password1'},
+{ userId:2, username: 'Randy Orton', password: 'password2'},
+{ userId:3, username: 'Big Show', password: 'password3'},
 ]
 router.get('/list', (req, res) => {
   res.status(200).json(users);
