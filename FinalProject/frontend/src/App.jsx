@@ -24,10 +24,10 @@ function App() {
                   <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="http://localhost:2025/api/user/list">Users</a>
+                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/user/list">Users</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="http://localhost:2025/api/bug/list">Bugs</a>
+                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/bug/list">Bugs</a>
                 </li>
               </ul>
             </div>
@@ -42,20 +42,20 @@ function App() {
       <h1>Users:</h1>
       <br/>
       <p id="users"></p>
-      <a href='http://localhost:2025/api/user/1'>John Cena</a>
+      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/1'>John Cena</a>
       <br/>
-      <a href='http://localhost:2025/api/user/2'>Randy Orton</a>
+      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/2'>Randy Orton</a>
       <br/>
-      <a href='http://localhost:2025/api/user/3'>Big Show</a>
+      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/3'>Big Show</a>
     </div>
     <div class="col border border-black">
       <h1>Bugs:</h1>
       <br/>
-      <a href='http://localhost:2025/api/bug/1'>SYSTEM IS BROKEN</a>
+      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/1'>SYSTEM IS BROKEN</a>
       <br/>
-      <a href='http://localhost:2025/api/bug/2'>Clicking log in buys 4 years worth of disney+</a>
+      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/2'>Clicking log in buys 4 years worth of disney+</a>
       <br/>
-      <a href='http://localhost:2025/api/bug/3'>Click does not work</a>
+      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/3'>Click does not work</a>
     </div>
   </div>
 </div>
