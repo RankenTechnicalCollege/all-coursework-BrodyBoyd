@@ -1,0 +1,26 @@
+EXERCISE 1
+
+1. db.movies.find()
+2. db.theaters.find()
+3. db.movies.find({genres:"Documentary"})
+4. db.movies.find({"imdb.rating": { $gte: 7 }, "imdb.votes": { $gte: 1000}})
+5. db.movies.find({countries: "France"})
+6. db.movies.find({year: 2010})
+7. db.theaters.find({ "location.geo" : { $near : { $geometry: { type: "Point" , coordinates: [ -90.249222 , 38.653309 ] },  $maxDistance: 160934, $minDistance: 1 }}})
+8. db.movies.find({"tomatoes.viewer.rating": { $exists: true}}).sort({"tomatoes.viewer.rating": -1}).limit(10)
+9. db.comments.aggregate([{ $group: { _id: "$name", commentCount: { $sum: 1 }}}, { $sort: { commentCount: -1 }}, { $limit: 10 }])
+10.db.movies.find({"tomatoes.viewer.rating": { $exists: true }}).sort({"tomatoes.viewer.rating": -1}).limit(10)
+
+EXERCISE 2
+
+1. db.users.insertOne({ name: "Brody Boyd", email: "bjb6287l.com", password: "password" })
+2. db.movies.insertOne({plot: "Piano player falls in and out of love with an actress", genres: ['Drama', 'Romance'], runtime: '120', cast: ['Emma Stone', 'Ryan Gosling'], title: "La La Land", directors: 'Damien Chazelle'})
+3. db.theaters.insertOne({location: { address : {street1 : '212 Kingshighway Blvd', city : 'St.Louis', state: 'MO', zipcode: '63108'}}})
+4. db.comments.insertOne({name: 'Brody Boyd', email: 'bjb6287@gmail.com', movie_id: ObjectId('68c070c0dcbbfc5f0fae8f00'), text: 'This is the best movie ive ever seen', date: new Date() })
+5. db.movies.updateOne({ _id: ObjectId('573a1390f29313caabcd42e8')}, { $set: {imdb: {rating: 10, votes: 1000000000}, tomatoes: {viewer: {rating: 9.8, numReviews: 153513513513, meter: 100}}}})
+6. db.movies.updateOne({ _id: ObjectId('573a1390f29313caabcd42e8')}, { $push : {countries: 'France'}})
+7. db.movies.updateOne({ _id: ObjectId('573a1390f29313caabcd42e8')}, { $push : { genres: 'Comedy'}})
+8. db.movies.updateOne({ _id: ObjectId('68c070c0dcbbfc5f0fae8f00')}, { $set: { sideActors: ['John Legend', 'J.K. Simmons', 'Rosemarie DeWitt']}})
+9. db.theaters.deleteOne({_id: ObjectId('68c072dfdcbbfc5f0fae8f02')})
+10. db.users.deleteOne({_id : ObjectId('59b99dbccfa9a34dcd7885c6')})
+
