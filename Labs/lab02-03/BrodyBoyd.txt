@@ -1,0 +1,41 @@
+Lab 02-03 Brody Boyd
+
+1. db.movies.insertOne({title: "The Super Mario Bros. Movie", year: 2023, genres : ['Animation'], directors: ['Aaron Horvath', 'Michael Jelenic'], cast: ['Jack Black', 'Anya Taylor-Joy', 'Chris Pratt', 'Charlie Day']})
+2. db.movies.find().sort({title: 1}).limit(5)
+3. db.movies.updateOne({title: "The Lion King"}, { $set : {title: "The Lion King (1994)"}})
+4. db.movies.deleteOne({title:"The Lion King (1994)"})
+5. db.users.insertOne({name: "John Doe", email: "johndoe@example.com", password: "123456"})
+6. db.users.find({},{name :1, _id: 0, email: 1}).sort({name: -1})
+7. db.users.updateOne({email: 'johndoe@example.com'}, { $set:{ name: 'John Smith' }})
+8. db.users.updateOne({email: 'johndoe@example.com'}, { $set:{ password: 'newpassword' }})
+9. db.users.deleteOne({email: "johndoe@example.com"})
+10.db.comments.insertOne({movie_id: ObjectId('68c070c0dcbbfc5f0fae8f00'), name: 'Lisa Rasmussen', text: 'Great Movie!  Highly recommend it.'})
+11. db.comments.aggregate([{ $lookup: { from: "movies", localField: "movie_id", foreignField: "_id", as: "movie" }}, { $unwind: "$movie" }, { $project: { _id: 1, text: 1, date: 1, "movie.title": 1 }}])
+12. db.comments.updateOne({_id : ObjectId('5a9427648b0beebeb6957bde')}, { $set: {text: "This Movie is a masterpiece!"}})
+13. db.comments.deleteOne({_id: ObjectId('5a9427648b0beebeb6957bde')})
+14. db.comments.find({genres: 'Comedy'})
+15. db.movies.updateOne({ _id: ObjectId('573a1391f29313caabcd9269')}, { $push : { genres: 'Drama'}})
+16. db.movies.deleteMany({year: { $lt : 2000 }})
+17. db.movies.find({year: { $gte : 2010, $lte : 2020 }}).sort({"imdb.rating": -1})
+18. db.movies.updateMany({year: 2015}, {$set : {year:2016}})
+19. db.movies.deleteMany({directors: 'Christopher Nolan'})
+20. db.users.insertOne({name:'admin', email:'admin@example.com', password:'password'})
+21. db.users.find({email: {$regex:/admin/}})
+22. db.comments.deleteMany({email: 'johndoe@example.com'})
+23. db.movies.createIndex({ title: 1 })
+24. db.movies.find({ title: {$regex:/^A/}})
+25. db.movies.updateMany({ genres: {$in : ['Action']}}, {$set: {genres: 'Adventure'}})
+26. db.users.updateOne({name:'Brody Boyd'},{$set:{lastLogin: new Date()}})
+
+db.users.deleteMany({lastLogin: { $lte : new Date('March 9, 2025')}})
+
+27. 
+28. db.movies.updateOne({_id: ObjectId('573a1393f29313caabcdcb42')}, { $set: {"imdb.rating": 4.5}})
+29. db.comments.insertOne({name: "Brody Boyd", email: "bjb6287@gmail.com", movie_id: ObjectId('68c070c0dcbbfc5f0fae8f00'), text: "Spoiler warning, but they all die in the end", date: new Date()})
+
+db.comments.deleteMany({text: { "$regex" : "spoiler", "$options": "i"}})
+
+30. db.movies.aggregate([{ $group: { _id: "$genres", MovieCountForGenre: { $sum: 1 }}}, { $sort: { MovieCountForGenre: -1 }}, { $limit: 10 }])
+
+31.db.movies.updateMany({title: { "$exists": true}}, [{ $set: {"title": { $toUpper : "$title"}}}])
+
