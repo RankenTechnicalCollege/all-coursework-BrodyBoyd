@@ -9,7 +9,9 @@ const taxableIncome = await rl.question("what is your taxable income?")
 let taxedIncome = parseFloat(taxableIncome)
 
 let taxes = 0;
-
+if (isNaN(taxableIncome) || taxedIncome <= 0) {
+  console.log("Invalid amount of money entered")
+} else {
 if (filingStatus == 1) {
   if (taxedIncome <= 11600) {
     taxes = taxedIncome * .1
@@ -77,6 +79,7 @@ else if (filingStatus == 2) {
   {
     console.log("Invalid amount of money entered")
   }
+}
 }
 
 rl.close();

@@ -8,7 +8,7 @@ let tempToConvert = await rl.question('What is your temperature?')
 const tempAsNumber = parseFloat(tempToConvert)
 if (tempType == 'F')
 {
-  if (tempAsNumber == NaN || tempAsNumber <= 0) {
+  if (isNaN(tempAsNumber) || tempAsNumber <= 0) {
     console.log("Not a valid number, try again");
   }
   else {
@@ -18,7 +18,7 @@ if (tempType == 'F')
 }
 else if (tempType == 'C') 
 {
-if (tempAsNumber == NaN || tempAsNumber <= 0) {
+if (isNaN(tempAsNumber) || tempAsNumber <= 0) {
     console.log("Not a valid number, try again");
   }
   else {
