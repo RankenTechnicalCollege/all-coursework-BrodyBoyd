@@ -35,7 +35,7 @@ db.users.deleteMany({lastLogin: { $lte : new Date('March 9, 2025')}})
 
 db.comments.deleteMany({text: { "$regex" : "spoiler", "$options": "i"}})
 
-30. db.movies.aggregate([{ $group: { _id: "$genres", MovieCountForGenre: { $sum: 1 }}}, { $sort: { MovieCountForGenre: -1 }}, { $limit: 10 }])
+30. db.movies.aggregate([{ $unwind: "$genres" }, { $group: { _id: "$genres", MovieCountForGenre: { $sum: 1 }}}, { $sort: { MovieCountForGenre: -1 }}, { $limit: 10 }])
 
 31.db.movies.updateMany({title: { "$exists": true}}, [{ $set: {"title": { $toUpper : "$title"}}}])
 
