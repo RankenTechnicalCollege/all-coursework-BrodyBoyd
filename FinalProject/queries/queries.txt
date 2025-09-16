@@ -3,4 +3,50 @@
 3. db.users.find({_id: ObjectId('68c87df1ac64765bdb745165')}, {createdBugs: 1, assignedBugs: 1, _id: 0, fullName: 1})
 4. db.bugs.find({classification: 'unclassified'})
 5. db.bugs.find({classification: 'approved', closed: false})
-6.  db.bugs.find({fixedInVersion: {$ne : ""}, closed: false})
+6. db.bugs.find({fixedInVersion: {$ne : ""}, closed: false})
+7. db.bugs.find({stepsToReproduce: ""})
+8. db.bugs.find({testcase: { $size: 0 }})
+9. db.bugs.find({workHoursLog: { $size: 0 }})
+10. db.bugs.aggregate([{ $project: { _id: 1, bugTitle : "$title", amountOfComments: { $size: "$comments"}}}])
+11. db.bugs.aggregate([{ $project: { _id: 1, bugTitle : "$title", totalTimeWorked: { $sum: "$workHoursLog"}}}])
+12. db.bugs.find({ testcase: { $in: ["failed"] }})
+
+Manipulate
+1. db.users.insertOne({email: "testEmail@gmail.com",
+   password: "password3",
+   fullName: "Jonathon Archibald IV",
+   givenName: "Jonathon",
+   familyName: "Archibald IV",
+   role: "developer",
+   createdBugs: [],
+   assignedBugs:[]
+})
+
+2. db.bugs.insertOne({
+title: "Screen Colors are inverted upon refresh",
+desctiprion: "my screens colors invert",
+stepsToReproduce: "click refresh",
+authorOfBug: ObjectId('68c87df1ac64765bdb745165'),
+dateOfCreation: new Date(),
+classification: "approved",
+})
+
+3. db.users.updateOne({_id: ObjectId('68c9a770ac64765bdb74516f')}, {$push: {assignedBugs: ObjectId('68c9a832ac64765bdb745171')}})
+
+4. db.bugs.updateOne({
+  _id: ObjectId('68c9a832ac64765bdb745171')}, 
+                  {$push: 
+                  {comments: 
+                    [{commentAuthor: ObjectId('68c87df1ac64765bdb745165'), 
+                      dateTime: new Date(), 
+                      text: "this bug is weird"}]}})
+
+5. db.bugs.updateOne({_id:  ObjectId('68c9a832ac64765bdb745171')}, {$push: {testcase: { $each: ['failed', 'failed', 'failed']}}})
+
+6. db.bugs.updateOne({_id: ObjectId('68c9a832ac64765bdb745171')}, {$push: { workHourslog: { $each: [1, 4, 12]}}})
+
+
+7. db.bugs.updateOne({_id: ObjectId('68c9a832ac64765bdb745171')}, {$set :{fixedOnDate: new Date(), fixedInVersion: '14.2.5'}})
+
+8. db.bugs.updateOne({_id: ObjectId('68c9a832ac64765bdb745171')}, { $set: {closed: true}})
+
