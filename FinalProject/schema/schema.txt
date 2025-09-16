@@ -1,0 +1,56 @@
+db.users.insertMany([
+  {
+   email: "bjb6287@gmail.com",
+   password: "password",
+   fullName: "Brody Boyd",
+   givenName: "Brody",
+   familyName: "Boyd",
+   role: "developer",
+   createdBugs: [],
+   assignedBugs:[]
+  },
+   {
+  
+   email: "email1@gmail.com",
+   password: "password2",
+   fullName: "Josh Shmoe",
+   givenName: "Josh",
+   familyName: "Shnoe",
+   role: "developer",
+   createdBugs: [],
+   assignedBugs:[]
+  }
+])
+
+db.bugs.insertMany([
+{
+title: "login button not working",
+desctiprion: "When I click login after entering my info it does not work",
+stepsToReproduce: "click login",
+authorOfBug: ObjectId('68c87df1ac64765bdb745165'),
+dateOfCreation: new Date(),
+classification: "approved",
+edits : [{}],
+comments: [{}],
+testcase: ['passed', 'failed', 'passed'],
+workHoursLog: [12, 14, 1],
+fixedInVersion: '14.2.5',
+fixedOnDate: new Date(),
+closed: true
+}, 
+{
+title: "Homescreen glitches out after reload",
+desctiprion: "When I reload the page my screen freaks out",
+stepsToReproduce: "refresh the page",
+authorOfBug: ObjectId('68c87df1ac64765bdb745166'),
+dateOfCreation: new Date(),
+classification: "approved",
+edits : [{}],
+comments: [{}],
+testcase: ['failed', 'failed', 'passed'],
+workHoursLog: [1, 19, 4],
+fixedInVersion: '12.2.5',
+fixedOnDate: new Date(),
+closed: true
+}])
+

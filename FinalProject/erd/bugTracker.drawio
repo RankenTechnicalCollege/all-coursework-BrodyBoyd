@@ -1,0 +1,31 @@
+<mxfile host="65bd71144e">
+    <diagram id="oxRNZoW_T0PyPhNx8XgD" name="Page-1">
+        <mxGraphModel dx="832" dy="659" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="Bugs" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="90" y="130" width="210" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="_id : ObjectId&lt;div&gt;title : string&lt;/div&gt;&lt;div&gt;description : string&lt;/div&gt;&lt;div&gt;stepsToReproduce : string&lt;/div&gt;&lt;div&gt;authorOfBug :userId (ObjectId)&lt;/div&gt;&lt;div&gt;dateOfCreation : DateTime&lt;/div&gt;&lt;div&gt;classification : string&lt;/div&gt;&lt;div&gt;edits : [{&lt;br&gt;userId : ObjectId&lt;/div&gt;&lt;div&gt;DateTime : DateTIme&lt;/div&gt;&lt;div&gt;operation : string&lt;br&gt;}]&lt;/div&gt;&lt;div&gt;comments : [{&lt;/div&gt;&lt;div&gt;commentAuthor : userId (ObjectId)&lt;/div&gt;&lt;div&gt;DateTime : DateTime&lt;/div&gt;&lt;div&gt;text: string&lt;/div&gt;&lt;div&gt;}]&lt;/div&gt;&lt;div&gt;testCase : string[]&lt;/div&gt;&lt;div&gt;workHoursLog : int[]&lt;/div&gt;&lt;div&gt;fixedInVersion : string&lt;/div&gt;&lt;div&gt;fixedOnDate : DateTime&lt;/div&gt;&lt;div&gt;closed : boolean&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="2">
+                    <mxGeometry y="50" width="210" height="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Users" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="450" y="110" width="200" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="_id : ObjectId&lt;br&gt;email : string&lt;div&gt;password : MD5Hash&lt;/div&gt;&lt;div&gt;fullName : string&lt;/div&gt;&lt;div&gt;givenName : string&lt;/div&gt;&lt;div&gt;familyName : string&lt;/div&gt;&lt;div&gt;role : string&lt;/div&gt;&lt;div&gt;createdBugs : bugId ObjectId[]&lt;/div&gt;&lt;div&gt;assignedBugs : bugId ObjectId[]&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="4">
+                    <mxGeometry y="50" width="200" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERzeroToMany;startArrow=ERmandOne;exitX=-0.004;exitY=0.123;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="4" target="3">
+                    <mxGeometry width="100" height="100" relative="1" as="geometry">
+                        <mxPoint x="420" y="180" as="sourcePoint"/>
+                        <mxPoint x="480" y="290" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="500" y="180"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

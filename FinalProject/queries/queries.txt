@@ -1,0 +1,6 @@
+1. db.users.find({_id: ObjectId('68c87df1ac64765bdb745165')}, {createdBugs: 1, _id: 0, fullName: 1})
+2. db.users.find({_id: ObjectId('68c87df1ac64765bdb745165')}, {assignedBugs: 1, _id: 0, fullName: 1})
+3. db.users.find({_id: ObjectId('68c87df1ac64765bdb745165')}, {createdBugs: 1, assignedBugs: 1, _id: 0, fullName: 1})
+4. db.bugs.find({classification: 'unclassified'})
+5. db.bugs.find({classification: 'approved', closed: false})
+6.  db.bugs.find({fixedInVersion: {$ne : ""}, closed: false})
