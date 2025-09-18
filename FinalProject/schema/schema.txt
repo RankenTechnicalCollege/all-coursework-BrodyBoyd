@@ -54,3 +54,9 @@ fixedOnDate: new Date(),
 closed: true
 }])
 
+create indexes: 
+
+db.users.createIndex({email:1})
+
+db.bugs.createIndex({title:1})
+
