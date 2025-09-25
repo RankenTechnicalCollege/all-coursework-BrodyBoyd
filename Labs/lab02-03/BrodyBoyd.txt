@@ -30,7 +30,9 @@ Lab 02-03 Brody Boyd
 db.users.deleteMany({lastLogin: { $lte : new Date('March 9, 2025')}})
 
 27. 
+
 28. db.movies.updateOne({_id: ObjectId('573a1393f29313caabcdcb42')}, { $set: {"imdb.rating": 4.5}})
+
 29. db.comments.insertOne({name: "Brody Boyd", email: "bjb6287@gmail.com", movie_id: ObjectId('68c070c0dcbbfc5f0fae8f00'), text: "Spoiler warning, but they all die in the end", date: new Date()})
 
 db.comments.deleteMany({text: { "$regex" : "spoiler", "$options": "i"}})

@@ -4,118 +4,160 @@ const router = express.Router();
 
 import debug from 'debug';
 const debugUser = debug('app:User');
+import { getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser } from '../../database.js';
+import bcrypt from 'bcrypt';
 
-const users = [
-{ userId:1, username: 'John Cena', password: 'password1'},
-{ userId:2, username: 'Randy Orton', password: 'password2'},
-{ userId:3, username: 'Big Show', password: 'password3'},
-]
-router.get('/list', (req, res) => {
+
+
+
+router.get('', async (req, res) => {
+  
+  try {
+    const users = await getUsers();
+    if (!users){
+    return res.status(500).send('Error retrieving users')
+  }else {
   res.status(200).json(users);
+  }
+  }
+  catch (err) {
+    return res.status(500).send('Error')
+  }
+  
 });
+//^ working
 
-router.get('/:userId', (req, res) => {
-  const id = req.params.userId
-  const user = users.find(user => user.userId == id)
+
+router.get('/:userId', async (req, res) => {
+ try {
+  const userId = req.params.userId
+  const user = await getOneUser(userId)
   if (user){
     res.status(200).json(user);
   }
   else {
     res.status(404).send('User not found');
   }
+}
+catch (err) {
+  res.status(500).send('Server Error')
+}
 })
+//^ Working
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
+  try {
   const newUser= req.body;
 
-  const searchUser = users.find(user => user.email == newUser.email )
-
-  if (searchUser){
-    res.status(400).send('User already exists')
+  if (await getUserByEmail(newUser.email)){
+    return res.status(400).json({message: 'Email already in use'})
+  }
+  if (!newUser.email) {
+    res.status(400).send('Email is required')
     return;
-  }else {
-      newUser.userId = users.length + 1;
-      if (!newUser.email) {
-        res.status(400).send('Email is required')
-        return;
-      }
-      if (!newUser.password) {
-        res.status(400).type('text/plain').send('Password is required')
-        return;
-      }
-      if (!newUser.givenName) {
-        res.status(400).send('First name is required')
-        return;
-      }
-      if (!newUser.familyName) {
-        res.status(400).send('Last name is required')
-        return;
-      }
-      if (!newUser.role) {
-        res.status(400).send('Role is required')
-        return;
-      }
-      users.push(newUser);
-      res.status(200).json({message: `User ${newUser.givenName} added successfully`})
-    }
+  }
+  if (!newUser.password) {
+    res.status(400).type('text/plain').send('Password is required')
+    return;
+  }
+  if (!newUser.fullName) {
+    res.status(400).send('Full name is required')
+    return;
+  }
+  if (!newUser.givenName) {
+    res.status(400).send('First name is required')
+    return;
+  }
+  if (!newUser.familyName) {
+    res.status(400).send('Last name is required')
+    return;
+  }
+  if (!newUser.role) {
+    res.status(400).send('Role is required')
+    return;
+  }
+  newUser.createdAt = new Date()
+  newUser.password = await bcrypt.hash(newUser.password, 10)
+  const result = await registerUser(newUser);
+  if (result.insertedId) {
+    res.status(201).json({ id: result.insertedId, ...newUser });
+  } else {
+    res.status(500).send('Error adding user');
+  }
+}
+catch(err) {
+  res.status(500).send('error')
+}
+
 });
+//^ Working
 
-router.post('/login', (req,res) => {
-  const user = req.body;
-
-  if (!user.email) {
+router.post('/login', async (req,res) => {
+  const {email, password} = req.body;
+  let existingUser = null;
+  try {
+    existingUser = await getUserByEmail(email);
+  }catch(err){
+    debugUser(`Error fetching user by email: ${err}`)
+  }
+  if (!email) {
     res.status(400).send('Email is required');
     return;
   }
-  else if (!user.password) {
+  else if (!password) {
     res.status(400).send('Password is required');
     return;
   }
+  if (existingUser && await bcrypt.compare(password, existingUser.password)){
+    res.status(200).json({message: 'Welcome To LawnConnect', user: existingUser})
+  }else if (existingUser && existingUser.password == password){
+    res.status(200).json({message: 'Welcome To LawnConnect', user: existingUser})
+  }
   else {
-    const searchUser = users.find(u => u.email == user.email && u.password == user.password);
-    if (searchUser){
-      res.status(200).json({message: 'User logged in successfully'});
-    }
-    else {
-      res.status(401).send('Invalid credentials');
-    }
+    res.status(401).json({message: 'Invalid email or password'})
   }
 })
+//^ Working
 
-router.put('/:userId', (req,res) => {
-  const id = req.params.userId;
-  const userToUpdate = users.find(user => user.userId == id);
-
-  const updatedUser = req.body;
-
-  if(userToUpdate)
-  {
-    for (const key in updatedUser){
-      userToUpdate[key] = updatedUser[key];
+router.patch('/:userId', async (req,res) => {
+  try {
+  const userId = req.params.userId;
+  const user = await getOneUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: `Bug ${userId} not found` });
     }
-    const index = users.findIndex(user => user.userId == id);
-  if(index != -1){
-    users[index] = userToUpdate;
-  }
-    res.status(200).send(`User ${id} updated successfully`);
-  }
-  else {
-    res.status(404).send('user not found');
-  }
-});
-
-router.delete('/:userId', (req,res) => {
-  const id = req.params.userId;
-  const index = users.findIndex(user => user.userId == id);
-  if (index != -1){
-    users.splice(index,1);
-    res.status(200).send(`User ${id} deleted successfully`);
-  }
-  else {
-    res.status(404).send('User not found');
+  const updatedData = req.body;
+  updatedData.lastUpdated = new Date();
+  const result = await updateUser(userId, updatedData)
+  if (result.modifiedCount === 1) {
+    res.status(200).json({message: 'User updated successfully'})
+  } else {
+    res.status(404).json({message: 'User not found'})
+  }}
+  catch(err){
+    res.status(500).send('Server Error')
   }
 });
+//^ Working
 
-
+router.delete('/:userId', async (req,res) => {
+ try { 
+  const userId = req.params.userId;
+  const user = await getOneUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: `Bug ${userId} not found` });
+    }
+  const results = await deleteUser(userId);
+  if (results.deletedCount === 1){
+    res.status(200).json({message: 'User deleted successfully'});
+  } else {
+    res.status(404).json({message: 'User not found'})
+  }
+ }
+ catch(err){
+  res.status(500).send('Server Error')
+ }
+});
+//^ Working
 
 export { router as userRouter }

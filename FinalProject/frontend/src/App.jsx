@@ -24,10 +24,10 @@ function App() {
                   <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/user/list">Users</a>
+                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/user">Users</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/bug/list">Bugs</a>
+                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/bug">Bugs</a>
                 </li>
               </ul>
             </div>

@@ -14,7 +14,7 @@ app.use(express.json())
 app.use(express.static('frontend/dist'));
 app.use('/api/user', userRouter);
 app.use('/api/bug', BugRouter)
-const port = process.env.PORT || 5173;
+const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
   debugServer(`Server is now running on http://localhost:${port}`)
