@@ -1,0 +1,54 @@
+* {
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: large;
+  
+}
+
+body {
+  background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(161, 222, 255, 0.4));
+}
+.card {
+  margin: 15px;
+  max-width: 45%;
+  border: 5px solid black;
+  box-shadow: 8px 8px 5px darkslategray;
+  border-radius: 90px 92px 55px 200px;
+}
+.bothCards {
+  di
+}
+
+.link:hover {
+  color:red;
+}
+
+.link {
+  color:rgb(0, 0, 90);
+}
+.navbar {
+  background-color:rgb(202, 202, 202);
+  box-shadow: 2px 2px 3px darkslategray;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0; 
+  width: 100%;
+}
+
+.bugTracker {
+  float: right;
+  margin: .3em;
+  font-size: xx-large;
+}
+
+@media screen and (max-width: 896px) {
+  .bothCards {
+    display: flex;
+    flex-direction: column; 
+  }
+.card {
+  max-width: 100%;
+}
+    }

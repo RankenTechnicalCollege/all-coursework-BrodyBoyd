@@ -1,7 +1,5 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-
-
 import { MongoClient, ObjectId } from "mongodb";
 import debug from 'debug';
 const debugDb = debug('app:Database');
@@ -98,4 +96,4 @@ async function updateBug(bugId, updatedData){
 export { newId, connect, ping, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug };
 
 // test the database connection
-ping();
+

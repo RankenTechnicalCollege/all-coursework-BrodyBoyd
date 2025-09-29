@@ -12,57 +12,60 @@ function App() {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"></link>
       </head>
       <header>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary border border-black">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="#">Navbar</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
+        <nav className="navbar navbar-expand-lg bg-body-tertiary border border-black">
+          <div className="container-fluid">
+            <a className="navbar-brand link" href="#">Navbar</a>
+            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span className="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <div className="collapse navbar-collapse" id="navbarNav">
+              <ul className="navbar-nav">
+                <li className="nav-item">
+                  <a className="nav-link link active" aria-current="page" href="#">Home</a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/user">Users</a>
+                <li className="nav-item">
+                  <a className="nav-link link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/user">Users</a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/bug">Bugs</a>
+                <li className="nav-item">
+                  <a className="nav-link link" href="https://issuetracker-service-627308096057.us-central1.run.app/api/bug">Bugs</a>
                 </li>
               </ul>
+              
             </div>
+            <p class='bugTracker'>Bug Tracker - Brody Boyd</p>
           </div>
+          
         </nav>
     </header>
     
     <main>
-      <div class="container text-center">
-  <div class="row">
-    <div class="col border border-black">
+      <div class="text-center">
+  <div class="bothCards">
+    <div class="card  p-3 text-center">
       <h1>Users:</h1>
       <br/>
       <p id="users"></p>
-      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/1'>John Cena</a>
+      <a className='link' href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/68c9a770ac64765bdb74516f'>Matt Timm</a>
       <br/>
-      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/2'>Randy Orton</a>
+      <a className='link' href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/68c9a786ac64765bdb745170'>Jonathon Archibald IV</a>
       <br/>
-      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/3'>Big Show</a>
+      <a className='link' href='https://issuetracker-service-627308096057.us-central1.run.app/api/user/68d5951eb24a3ba847696c2c'>Gurt Boyd</a>
     </div>
-    <div class="col border border-black">
+    <div className="card  p-3 text-center">
       <h1>Bugs:</h1>
       <br/>
-      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/1'>SYSTEM IS BROKEN</a>
+      <a className='link' href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/68c87fbfac64765bdb745168'>Homescreen Glitch</a>
       <br/>
-      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/2'>Clicking log in buys 4 years worth of disney+</a>
+      <a className='link' href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/68c87fbfac64765bdb745167'>Login Button does not work</a>
       <br/>
-      <a href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/3'>Click does not work</a>
+      <a className='link' href='https://issuetracker-service-627308096057.us-central1.run.app/api/bug/68c9a832ac64765bdb745171'>Screen Colors Inverted</a>
     </div>
   </div>
 </div>
     </main>
 
-    <footer class=" align-items-center py-3 my-4 border-top bg-dark">
-      <p class="text-center text-white">&copy;2025 Brody Boyd</p>
+    <footer className="footer align-items-center border-top bg-dark">
+      <p className="text-center text-white">&copy;2025 Brody Boyd</p>
     </footer>
     </>
   )
