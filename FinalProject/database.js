@@ -92,8 +92,19 @@ async function updateBug(bugId, updatedData){
   return result;
 }
 
+//comment endpoints
 
-export { newId, connect, ping, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug };
+async function findBugsComments(bugId){
+  const db = await connect();
+  return db.collection('bugs').findOne({ _id: bugId },{ comments: 1, _id: 0 })
+};
+
+async function findSpecificComment(bugId){
+  const db = await connect();
+}
+
+
+export { newId, connect, ping, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug, findBugsComments };
 
 // test the database connection
 

@@ -3,7 +3,7 @@ const router = express.Router();
 import joi from 'joi';
 import debug from 'debug';
 const debugBug = debug('app:BugRouter');
-import { getBugs, getBugById, createBug, updateBug } from '../../database.js';
+import { getBugs, getBugById, createBug, updateBug, findBugsComments } from '../../database.js';
 import { createBugSchema, updateSchema, classifySchema, assignSchema, closeSchema } from '../../validation/bugSchema.js'
 import { validate } from '../../middleware/joiValidator.js'
 import { validId } from '../../middleware/validId.js'
@@ -51,6 +51,7 @@ router.post('', validate(createBugSchema), async (req,res) => {
   try {
   const newBug = req.body;
     newBug.createdAt = new Date()
+    newBug.comments = [{}]
   const result = await createBug(newBug);
   if (result.insertedId) {
     res.status(201).json({ id: result.insertedId, ...newBug });
@@ -155,12 +156,39 @@ router.patch('/:bugId/close', validate(closeSchema), validId('bugId'), async (re
 
 //COMMENT APIS
 
-router.get('/:bugId/comments', async (req,res) => { //list all
-
+router.get('/:bugId/comments', validId('bugId'), async (req,res) => { //list all
+try {
+  const bugId = req.bugId
+  const comments = await findBugsComments(bugId)
+  
+  if (comments){
+    res.status(200).json(comments.comments);
+  }
+  else {
+    res.status(404).json({ error: `bugId ${bugId} is not a valid ObjectId.` });
+  }
+}
+catch (err) {
+  res.status(500).json('Error')
+}
 });
 
-router.get('/:bugId/comments/:commentId', async (req,res) => { // search specific comment
-
+router.get('/:bugId/comments/:commentId', validId('bugId'), validId('commentId'), async (req,res) => { // search specific comment
+try {
+  const bugId = req.bugId
+  const commentId = req.commentId
+  const comments = await findBugsComments(bugId)
+  
+  if (comments){
+    res.status(200).json(comments.comments);
+  }
+  else {
+    res.status(404).json({ error: `bugId ${bugId} is not a valid ObjectId.` });
+  }
+}
+catch (err) {
+  res.status(500).json('Error')
+}
 })
 
 router.post('/:bugId/comments', async (req,res) => { // add comment
