@@ -41,7 +41,7 @@ async function getUsers(){
 
 async function getOneUser(userId){
   const db = await connect();
-  return db.collection('users').findOne({_id: new ObjectId(userId)})
+  return db.collection('users').findOne({_id: userId})
 }
 
 async function registerUser(user){
@@ -58,13 +58,13 @@ async function getUserByEmail(email){
 
 async function updateUser(userId, updatedData){
   const db = await connect();
-  const result = await db.collection('users').updateOne({_id: new ObjectId(userId)}, {$set: updatedData})
+  const result = await db.collection('users').updateOne({_id: userId}, {$set: updatedData})
   return result;
 }
 
 async function deleteUser(userId){
   const db = await connect();
-  const result = await db.collection('users').deleteOne({_id: new ObjectId(userId)});
+  const result = await db.collection('users').deleteOne({_id: userId});
   return result;
 }
 
@@ -77,7 +77,7 @@ async function getBugs(){
 
 async function getBugById(bugId){
   const db = await connect();
-  return db.collection('bugs').findOne({_id: new ObjectId(bugId)})
+  return db.collection('bugs').findOne({_id: bugId})
 }
 
 async function createBug(bug){
@@ -88,7 +88,7 @@ async function createBug(bug){
 
 async function updateBug(bugId, updatedData){
   const db = await connect();
-  const result = await db.collection('bugs').updateOne({_id: new ObjectId(bugId)}, {$set: updatedData})
+  const result = await db.collection('bugs').updateOne({_id: bugId}, {$set: updatedData})
   return result;
 }
 

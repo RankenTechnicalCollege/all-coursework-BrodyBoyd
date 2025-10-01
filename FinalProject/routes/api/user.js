@@ -5,6 +5,9 @@ import debug from 'debug';
 const debugUser = debug('app:User');
 import { getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser } from '../../database.js';
 import bcrypt from 'bcrypt';
+import { registerSchema, loginSchema, updateSchema } from '../../validation/userSchema.js'
+import { validate } from '../../middleware/joiValidator.js'
+import { validId } from '../../middleware/validId.js'
 
 
 
@@ -24,15 +27,18 @@ router.get('', async (req, res) => {
   }
   
 });
-//^ working 03-02
+//^ working with validate 03-02
 
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', validId('userId'), async (req, res) => {
  try {
-  const userId = req.params.userId
-  try {
+  const userId = req.userId
   const user = await getOneUser(userId)
-  if (user){
+  try {
+  
+  if (!user){
+    res.status(400).json({error: 'User Not Found'})
+  } else {
     res.status(200).json(user);
   }
 }
@@ -44,32 +50,14 @@ catch (err) {
   res.status(500).send('Server Error')
 }
 })
-//^ Working 03-02
+//^ Working with validate 03-02
 
-router.post('/register', async (req, res) => {
+router.post('/register', validate(registerSchema), async (req, res) => {
   try {
   const newUser = req.body;
-
   if (await getUserByEmail(newUser.email)) {
     return res.status(400).json({ message: 'Email already in use' });
   }
-
-  const schema = joi.object({
-    email: joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
-    password: joi.string().required(),
-    givenName: joi.string().required(),
-    familyName: joi.string().required(),
-    role: joi.string().valid('Developer', 'Business Analyst', 'Quality Analyst', 'Product Manager', 'Technical Manager').required()
-  });
-
-  try {
-    await schema.validateAsync({
-      email: newUser.email,
-      password: newUser.password,
-      givenName: newUser.givenName,
-      familyName: newUser.familyName,
-      role: newUser.role
-    });
     newUser.createdAt = new Date();
     newUser.password = await bcrypt.hash(newUser.password, 10);
     const result = await registerUser(newUser);
@@ -78,15 +66,13 @@ router.post('/register', async (req, res) => {
     } else {
       res.status(500).send('Error adding user');
     }
-  } catch (validateError) {
-    res.status(400).json({ error: validateError.details ? validateError.details[0].message : validateError.message });
-  }} catch (err) {
+} catch (err) {
     res.status(500).json({error: 'server error'})
   }
 });
-//^ Working 03-02
+//^ Working with validate 03-02
 
-router.post('/login', async (req,res) => {
+router.post('/login', validate(loginSchema), async (req,res) => {
   try {
   const {email, password} = req.body;
   let existingUser = null;
@@ -95,15 +81,6 @@ router.post('/login', async (req,res) => {
   }catch(err){
     debugUser(`Error fetching user by email: ${err}`)
   }
-  const schema = joi.object({
-    email: joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
-    password: joi.string().required()
-  })
-  try {
-    await schema.validateAsync({
-      email: email,
-      password: password
-    });
     if (existingUser && await bcrypt.compare(password, existingUser.password)){
     res.status(200).json({message: 'Welcome In', user: existingUser})
   }else if (existingUser && existingUser.password == password){
@@ -112,42 +89,22 @@ router.post('/login', async (req,res) => {
   else {
     res.status(401).json({message: 'Invalid email or password'})
   }
-  } catch (validateError) {
-    res.status(400).json({ error: validateError.details ? validateError.details[0].message : validateError.message });
-  }} catch (err) {
+  } catch (err) {
     res.status(500).json({error: 'server error'})
   }
 
   
 })
-//^ Working 03-02
+//^ Working with validate 03-02
 
-router.patch('/:userId', async (req,res) => {
+router.patch('/:userId', validate(updateSchema), validId('userId'), async (req,res) => {
   try {
-  const userId = req.params.userId;
+  const userId = req.userId;
   const user = await getOneUser(userId);
     if (!user) {
       return res.status(404).json({ error: `userId ${userId} is not a valid ObjectId.` });
     }
-
-    const schema = joi.object({
-      password: joi.string(),
-      fullName: joi.string(),
-      givenName: joi.string(),
-      familyName: joi.string(),
-      role: joi.string().valid('Developer', 'Business Analyst', 'Quality Analyst', 'Product Manager', 'Technical Manager')
-    });
-
-  try {
     const updatedData = req.body;
-      await schema.validateAsync({
-        password: updatedData.password,
-        fullName: updatedData.fullName,
-        givenName: updatedData.givenName,
-        familyName: updatedData.familyName,
-        role: updatedData.role
-      });
-
   updatedData.lastUpdated = new Date();
   const result = await updateUser(userId, updatedData)
   if (result.modifiedCount === 1) {
@@ -156,19 +113,15 @@ router.patch('/:userId', async (req,res) => {
     res.status(404).json({message: 'User not found'})
   }
 }
-  catch (validateError) {
-    res.status(400).json({ error: validateError.details ? validateError.details[0].message : validateError.message });
-  }
-}
   catch(err){
     res.status(500).send('Server Error')
   }
 });
-//^ Working 03-02
+//^ Working with validate 03-02
 
-router.delete('/:userId', async (req,res) => {
+router.delete('/:userId', validId('userId'), async (req,res) => {
  try { 
-  const userId = req.params.userId;
+  const userId = req.userId;
   try{
   
   const user = await getOneUser(userId);
@@ -186,6 +139,6 @@ catch (err){
   res.status(500).send('Server Error')
  }
 });
-//^ Working 03-02
+//^ Working with validate 03-02
 
 export { router as userRouter }

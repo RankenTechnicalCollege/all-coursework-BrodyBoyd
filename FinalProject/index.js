@@ -7,6 +7,7 @@ const debugServer = debug('app:Server');
 import { userRouter } from './routes/api/user.js';
 import { BugRouter } from './routes/api/bug.js';
 
+
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
