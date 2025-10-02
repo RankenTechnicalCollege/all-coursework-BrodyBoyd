@@ -24,5 +24,20 @@ const assignSchema = Joi.object({
 const closeSchema = Joi.object({
       closed: Joi.bool().required()
     }).required();
+    
+const createCommentSchema = Joi.object({
+    author: Joi.string().required(),
+    text: Joi.string().required()
+}).required();
 
-export { createBugSchema, updateSchema, classifySchema, assignSchema, closeSchema } 
+const createTestSchema = Joi.object({
+    title: Joi.string().required(),
+    status: Joi.string().valid('passed', 'failed').required(),
+    description: Joi.string().required()
+}).required();
+
+const updateTestSchema = Joi.object({
+    status: Joi.string().valid('passed', 'failed').required()
+}).required()
+
+export { createBugSchema, updateSchema, classifySchema, assignSchema, closeSchema, createCommentSchema, createTestSchema, updateTestSchema} 
