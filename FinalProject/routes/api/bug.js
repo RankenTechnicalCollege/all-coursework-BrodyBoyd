@@ -16,7 +16,41 @@ const currentDate = new Date()
 
 router.get('', async (req,res) => {
   try {
-    const bugs = await getBugs();
+    const {keywords, classification, minAge, maxAge, closed, page, limit, sortBy} = req.query;
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 5;
+    const skip = limitNum > 0 ? (pageNum - 1) * limitNum : 0;
+
+    const filter = {};
+    if (keywords) { filter.$text = { $search: keywords }; }
+    if (classification) { filter.classification = classification; }
+    if (closed === "true") { filter.closed = true }
+    else if (closed === 'false') { filter.closed = false; }
+
+    if (minAge || maxAge) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const dateFilter = {};
+
+      if (maxAge) {dateFilter.$gte = new Date(today.getTime() - maxAge * 24 * 60 * 60 * 1000); }
+      if (minAge) {dateFilter.$lte = new Date(today.getTime() - minAge * 24 * 60 * 60 * 1000); }
+
+      filter.dateOfCreation = dateFilter;
+    }
+    const sortOptions = {
+      title: {title: 1, dateOfCreation: -1},
+      newest: {dateOfCreation: -1},
+      oldest: {dateOfCreation: 1},
+      classification: {classification: 1, dateOfCreation: -1},
+      assignedTo: {assignedToUserName: 1, dateOfCreation: -1},
+      createdBy: {createdByUserId: 1, dateOfCreation: -1}
+    };
+    const sort = sortOptions[sortBy] || {dateOfCreation: -1}
+    
+    
+    const bugs = await getBugs(filter, sort, limitNum, skip);
     if (!bugs){
     return res.status(500).send('Error retrieving Bugs')
   }else {

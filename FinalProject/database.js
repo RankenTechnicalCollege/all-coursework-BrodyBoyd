@@ -34,9 +34,17 @@ async function ping() {
 
 // FIXME: add more functions here
 //User endpoints
-async function getUsers(){
+async function getUsers(filter, sort, limit=0, skip=0){
   const db = await connect();
-  return db.collection('users').find({}).toArray();
+  let query = db.collection('users').find(filter).sort(sort);
+
+  if (skip > 0) {
+    query = query.skip(skip);
+  }
+  if (limit > 0) {
+    query = query.limit(limit);
+  }
+  return query.toArray()
 }
 
 async function getOneUser(userId){
@@ -70,9 +78,17 @@ async function deleteUser(userId){
 
 //Bug endpoints 
 
-async function getBugs(){
+async function getBugs(filter, sort, limit=0, skip=0){
   const db = await connect();
-  return db.collection('bugs').find({}).toArray();
+  let query = db.collection('bugs').find(filter).sort(sort);
+
+  if (skip > 0) {
+    query = query.skip(skip);
+  }
+  if (limit > 0) {
+    query = query.limit(limit);
+  }
+  return query.toArray()
 }
 
 async function getBugById(bugId){

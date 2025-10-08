@@ -13,9 +13,39 @@ import { validId } from '../../middleware/validId.js'
 
 
 router.get('', async (req, res) => {
-  
   try {
-    const users = await getUsers();
+    const {keywords, role, minAge, maxAge, page, limit, sortBy} = req.query;
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 5;
+    const skip = limitNum > 0 ? (pageNum - 1) * limitNum : 0;
+
+    const filter = {};
+    if (keywords) { filter.$text = { $search: keywords }; }
+    if (role) { filter.role = role; }
+
+    if (minAge || maxAge) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const dateFilter = {};
+
+      if (maxAge) {dateFilter.$gte = new Date(today.getTime() - maxAge * 24 * 60 * 60 * 1000); }
+      if (minAge) {dateFilter.$lt = new Date(today.getTime() - minAge * 24 * 60 * 60 * 1000); }
+
+      filter.createdAt = dateFilter;
+    }
+    const sortOptions = {
+      familyName: {familyName: 1, givenName: 1, createdAt: 1},
+      newest: {createdAt: -1},
+      role: {role: 1, givenName: 1, familyName: 1, createdAt: 1},
+      givenName: {givenName: 1, familyName: 1, createdAt: 1},
+      oldest: {createdAt: 1}
+    };
+    const sort = sortOptions[sortBy] || {givenName: -1}
+    
+
+    const users = await getUsers(filter, sort, limitNum, skip);
     if (!users){
     return res.status(500).send('Error retrieving users')
   }else {
@@ -58,7 +88,8 @@ router.post('/register', validate(registerSchema), async (req, res) => {
   if (await getUserByEmail(newUser.email)) {
     return res.status(400).json({ message: 'Email already in use' });
   }
-    newUser.createdAt = new Date();
+    const today = new Date();
+    newUser.createdAt = today;
     newUser.password = await bcrypt.hash(newUser.password, 10);
     const result = await registerUser(newUser);
     if (result.insertedId) {
