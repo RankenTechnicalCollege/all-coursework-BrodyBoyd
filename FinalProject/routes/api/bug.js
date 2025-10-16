@@ -61,7 +61,7 @@ router.get('', async (req,res) => {
     return res.status(500).send('Error')
   }
 });
-//^ Working with validate 03-02
+//^ Working with validate 03-04
 
 router.get('/:bugId', validId('bugId'), async (req,res) => {
   try {

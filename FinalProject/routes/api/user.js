@@ -57,7 +57,7 @@ router.get('', async (req, res) => {
   }
   
 });
-//^ working with validate 03-02
+//^ working with validate 03-04
 
 
 router.get('/:userId', validId('userId'), async (req, res) => {
