@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt';
 import { registerSchema, loginSchema, updateSchema } from '../../validation/userSchema.js'
 import { validate } from '../../middleware/joiValidator.js'
 import { validId } from '../../middleware/validId.js'
+import { isAuthenticated } from '../../middleware/isAuthenticated.js'
 
 
 
@@ -59,8 +60,22 @@ router.get('', async (req, res) => {
 });
 //^ working with validate 03-04
 
+router.get('/me', isAuthenticated, async (req,res) => {
+try {
+  res.status(200).json({
+    message: "Current User",
+    userId: req.user.id,
+    email: req.user.email,
+    givenName: req.user.givenName,
+    familyName: req.user.familyName,
+    Roles: req.user.role
+  })
+} catch (err) {
+  res.status(401).json({error: "server error"})
+}
+})
 
-router.get('/:userId', validId('userId'), async (req, res) => {
+router.get('/:userId', isAuthenticated, validId('userId'), async (req, res) => {
  try {
   const userId = req.userId
   const user = await getOneUser(userId)
@@ -81,6 +96,8 @@ catch (err) {
 }
 })
 //^ Working with validate 03-02
+
+
 
 router.post('/register', validate(registerSchema), async (req, res) => {
   try {

@@ -26,7 +26,6 @@ const closeSchema = Joi.object({
     }).required();
     
 const createCommentSchema = Joi.object({
-    author: Joi.string().required(),
     text: Joi.string().required()
 }).required();
 

@@ -3,10 +3,12 @@ const router = express.Router();
 import joi from 'joi';
 import debug from 'debug';
 const debugBug = debug('app:BugRouter');
-import { getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase } from '../../database.js';
+import { getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, saveAuditLog } from '../../database.js';
 import { createBugSchema, updateSchema, classifySchema, assignSchema, closeSchema, createCommentSchema, createTestSchema, updateTestSchema } from '../../validation/bugSchema.js'
 import { validate } from '../../middleware/joiValidator.js'
 import { validId } from '../../middleware/validId.js'
+import { isAuthenticated } from '../../middleware/isAuthenticated.js'
+
 
 
 router.use(express.urlencoded({extended:false}));
@@ -14,7 +16,7 @@ router.use(express.urlencoded({extended:false}));
 
 const currentDate = new Date()
 
-router.get('', async (req,res) => {
+router.get('', isAuthenticated, async (req,res) => {
   try {
     const {keywords, classification, minAge, maxAge, closed, page, limit, sortBy} = req.query;
 
@@ -63,7 +65,7 @@ router.get('', async (req,res) => {
 });
 //^ Working with validate 03-04
 
-router.get('/:bugId', validId('bugId'), async (req,res) => {
+router.get('/:bugId',  isAuthenticated, validId('bugId'), async (req,res) => {
   try {
   const bugId = req.bugId
   const bug = await getBugById(bugId)
@@ -81,15 +83,31 @@ catch (err) {
 });
 //^ Working with validate 03-02
 
-router.post('', validate(createBugSchema), async (req,res) => {
+router.post('', isAuthenticated, validate(createBugSchema), async (req,res) => {
   try {
   const newBug = req.body;
-    newBug.createdAt = new Date()
+    newBug.createdOn = new Date()
     newBug.comments = []
     newBug.testcase = []
+    newBug.closed = false;
+    newBug.classification = "unclassified";
+    newBug.createdBy = req.user.id
+
   const result = await createBug(newBug);
+
+
+  const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"insert",
+    target: result.insertedId,
+    update: JSON.stringify(newBug),
+    performedBy: req.user.email
+  }
+  
   if (result.insertedId) {
     res.status(201).json({ id: result.insertedId, ...newBug });
+    saveAuditLog(logEntry);
   } else {
     res.status(500).send('Error adding bug');
   }} catch (err) {
@@ -98,7 +116,7 @@ router.post('', validate(createBugSchema), async (req,res) => {
 });
 //^ Working with validate 03-02
 
-router.patch('/:bugId', validate(updateSchema), validId('bugId'), async (req,res) => {
+router.patch('/:bugId', isAuthenticated, validate(updateSchema), validId('bugId'), async (req,res) => {
   try {
   const bugId = req.bugId;
   const bug = await getBugById(bugId);
@@ -107,9 +125,21 @@ router.patch('/:bugId', validate(updateSchema), validId('bugId'), async (req,res
     }
     const updatedData = req.body;
     updatedData.lastUpdated = new Date();
+    updatedData.lastUpdatedBy = req.user.id;
     const result = await updateBug(bugId, updatedData);
+
+    const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"update",
+    target: bugId,
+    update: JSON.stringify(updatedData),
+    performedBy: req.user.email
+  }
+  
   if (result.modifiedCount === 1) {
     res.status(200).json({ message: `Bug ${bugId} updated!`, bugId })
+    saveAuditLog(logEntry);
   } else {
     res.status(404).json({error: 'Bug not found'})
   }}
@@ -118,7 +148,7 @@ router.patch('/:bugId', validate(updateSchema), validId('bugId'), async (req,res
   }});
 //^ Working with validate 03-02
 
-router.patch('/:bugId/classify', validate(classifySchema), validId('bugId'),  async (req,res) => {  
+router.patch('/:bugId/classify', isAuthenticated, validate(classifySchema), validId('bugId'),  async (req,res) => {  
   try {
     const bugId = req.bugId;
     const bug = await getBugById(bugId);
@@ -129,9 +159,22 @@ router.patch('/:bugId/classify', validate(classifySchema), validId('bugId'),  as
     updatedData.classification = req.body.classification;
     updatedData.lastUpdated = new Date();
     updatedData.classifiedOn = new Date();
+    updatedData.lastUpdatedBy = req.user.id;
+
+
+    const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"update",
+    target: bugId,
+    update: JSON.stringify(updatedData),
+    performedBy: req.user.email
+  }
+
     const result = await updateBug(bugId, updatedData);
     if (result.modifiedCount === 1) {
       res.status(200).json({ message: `Bug ${bugId} Classified!`, bugId });
+      saveAuditLog(logEntry);
     } else {
       res.status(404).json({ error: 'Bug not found' });
     }
@@ -141,7 +184,7 @@ router.patch('/:bugId/classify', validate(classifySchema), validId('bugId'),  as
 });
 //^ Working with validate 03-02
 
-router.patch('/:bugId/assign', validate(assignSchema), validId('bugId'), async (req,res) => {
+router.patch('/:bugId/assign', isAuthenticated, validate(assignSchema), validId('bugId'), async (req,res) => {
   try {
   const bugId = req.bugId;
   const bug = await getBugById(bugId);
@@ -151,10 +194,21 @@ router.patch('/:bugId/assign', validate(assignSchema), validId('bugId'), async (
       const newAssignments = req.body
       newAssignments.lastUpdated = new Date();
       newAssignments.assignedOn = new Date();
+      newAssignments.assignedBy = req.user.id
 
+
+      const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"update",
+    target: bugId,
+    update: JSON.stringify(newAssignments),
+    performedBy: req.user.email
+  }
       const result = await updateBug(bugId, newAssignments)
       if (result.modifiedCount === 1) {
         res.status(200).json({ message: `Bug ${bugId} assigned!`, bugId })
+        saveAuditLog(logEntry);
       } else {
         res.status(404).json({error: 'Bug not found'})
       }
@@ -165,7 +219,7 @@ router.patch('/:bugId/assign', validate(assignSchema), validId('bugId'), async (
 });
 //^ Working with validate 03-02
 
-router.patch('/:bugId/close', validate(closeSchema), validId('bugId'), async (req,res) => {
+router.patch('/:bugId/close', isAuthenticated, validate(closeSchema), validId('bugId'), async (req,res) => {
   try {
   const bugId = req.bugId;
   const bug = await getBugById(bugId);
@@ -175,10 +229,20 @@ router.patch('/:bugId/close', validate(closeSchema), validId('bugId'), async (re
   const closed = req.body
   closed.closedOn = new Date();
   closed.lastUpdated = new Date();
+  closed.closedBy = req.user.id
 
+  const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"update",
+    target: bugId,
+    update: JSON.stringify(closed),
+    performedBy: req.user.email
+  }
   const result = await updateBug(bugId, closed)
   if (result.modifiedCount === 1) {
     res.status(200).json({ message: `Bug ${bugId} Closed status changed!`, bugId })
+    saveAuditLog(logEntry);
   } else {
     res.status(404).json({error: 'Bug not found'})
   }
@@ -193,7 +257,7 @@ router.patch('/:bugId/close', validate(closeSchema), validId('bugId'), async (re
 
 //COMMENT APIS
 
-router.get('/:bugId/comments', validId('bugId'), async (req,res) => {
+router.get('/:bugId/comments', isAuthenticated,validId('bugId'), async (req,res) => {
 try {
   const bugId = req.bugId
   const comments = await findBugsComments(bugId)
@@ -211,7 +275,7 @@ catch (err) {
 });
 //^ working 03-03
 
-router.get('/:bugId/comments/:commentId',validId('bugId'), validId('commentId'), async (req,res) => { 
+router.get('/:bugId/comments/:commentId', isAuthenticated, validId('bugId'), validId('commentId'), async (req,res) => { 
 try {
   const commentId = req.commentId
   const bugId = req.bugId
@@ -230,10 +294,12 @@ catch (err) {
 })
 //^ working 03-03
 
-router.post('/:bugId/comments', validId('bugId'), validate(createCommentSchema),async (req,res) => {
+router.post('/:bugId/comments', isAuthenticated, validId('bugId'), validate(createCommentSchema),async (req,res) => {
 try {
     const newComment = req.body;
     const bugId = req.bugId
+    newComment.author = req.user.fullName
+    newComment.authorId = req.user.id
     newComment.createdAt = new Date()
     
   const result = await createComment(bugId, newComment );
@@ -250,7 +316,7 @@ try {
 
 //TESTCASE APIS 
 
-router.get('/:bugId/tests', validId('bugId'), async (req,res) => { //list All
+router.get('/:bugId/tests', isAuthenticated, validId('bugId'), async (req,res) => { //list All
   try {
   const bugId = req.bugId
   const comments = await findBugsTestCases(bugId)
@@ -268,7 +334,7 @@ catch (err) {
 });
 //^ working 03-03
 
-router.get('/:bugId/tests/:testId', validId('bugId'), validId('testId'), async (req,res) => { // find specific testcase
+router.get('/:bugId/tests/:testId', isAuthenticated, validId('bugId'), validId('testId'), async (req,res) => { // find specific testcase
 try {
   const testId = req.testId
   const bugId = req.bugId
@@ -287,15 +353,26 @@ catch (err) {
 });
 //^ working 03-03
 
-router.post('/:bugId/tests', validId('bugId'), validate(createTestSchema), async (req,res) => {  //create test case
+router.post('/:bugId/tests', isAuthenticated, validId('bugId'), validate(createTestSchema), async (req,res) => {  //create test case
 try {
     const newTestcase = req.body;
     const bugId = req.bugId
     newTestcase.createdAt = new Date()
+    newTestcase.createdBy = req.user.id
     
+    const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"update",
+    target: bugId,
+    update: JSON.stringify(newTestcase),
+    performedBy: req.user.email
+  }
+
   const result = await createTestcase(bugId, newTestcase );
   if (result) {
     res.status(201).json({ id: result.insertedId, ...newTestcase });
+    saveAuditLog(logEntry);
   } else {
     res.status(500).send('Error adding testCase');
   }} catch (err) {
@@ -304,14 +381,26 @@ try {
 });
 //^ working 03-03
 
-router.patch('/:bugId/tests/:testId', validId('bugId'), validId('testId'), validate(updateTestSchema), async (req,res) => {  //update testcase passed/failed
+router.patch('/:bugId/tests/:testId',  isAuthenticated, validId('bugId'), validId('testId'), validate(updateTestSchema), async (req,res) => {  //update testcase passed/failed
 try {
   const bugId = req.bugId;
   const testId = req.testId;
-  const {status} = req.body
+  const status = req.body
+  status.lastUpdatedOn = new Date();
+  status.lastUpdatedBy = req.user.id;
+
+  const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"update",
+    target: bugId,
+    update: JSON.stringify(status),
+    performedBy: req.user.email
+  }
   const result = await updateTestCase(bugId, testId, status)
   if (result.modifiedCount === 1) {
     res.status(200).json({ message: `Testcase ${testId} status changed!`, testId })
+    saveAuditLog(logEntry);
   } else {
     res.status(404).json({error: 'testcase not found'})
   }
@@ -322,13 +411,22 @@ try {
 });
 //^ working 03-03
 
-router.delete('/:bugId/tests/:testId', validId('bugId'), validId('testId'), async (req,res) => {  //delete testcase
+router.delete('/:bugId/tests/:testId', isAuthenticated, validId('bugId'), validId('testId'), async (req,res) => {  //delete testcase
   try {
   const bugId = req.bugId;
   const testId = req.testId;
   const results = await deleteTestCase(bugId, testId);
+
+  const logEntry = {
+    timeStamp: new Date(),
+    collection: "Bug",
+    operation:"delete",
+    target: bugId,
+    performedBy: req.user.email
+  }
   if (results.modifiedCount === 1){
     res.status(200).json({message: 'testCase deleted successfully'});
+    saveAuditLog(logEntry);
   } else {
     res.status(404).json({message: 'testCase not found'})
   }

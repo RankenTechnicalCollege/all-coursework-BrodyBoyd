@@ -12,17 +12,25 @@ const newId = (str) => ObjectId.createFromHexString(str);
 
 /** Global variable storing the open connection, do not use it directly. */
 let _db = null;
+let _client = null;
 
 /** Connect to the database */
 async function connect() {
   if (!_db) {
     const dbUrl = process.env.DB_URL;
     const dbName = process.env.DB_NAME;
-    const client = await MongoClient.connect(dbUrl);
-    _db = client.db(dbName);
+    _client = await MongoClient.connect(dbUrl);
+    _db = _client.db(dbName);
     debugDb('Connected.');
   }
   return _db;
+}
+
+async function getClient(){ 
+  if (!_client){
+    await connect();
+  }
+  return _client;
 }
 
 /** Connect to the database and verify the connection */
@@ -155,7 +163,12 @@ async function deleteTestCase(bugId, testId){
   const result = await db.collection('bugs').updateOne({ _id: bugId },{ $pull: { testcase: { _id:testId}}});
   return result;
 }
-export { newId, connect, ping, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase };
+async function saveAuditLog(log){
+  const db = await connect();
+  const dbResult = await db.collection('AuditLog').insertOne(log);
+  return dbResult;
+}
+export { newId, connect, ping, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, getClient, saveAuditLog };
 
 // test the database connection
 
