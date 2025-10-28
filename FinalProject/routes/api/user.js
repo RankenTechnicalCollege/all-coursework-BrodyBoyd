@@ -9,11 +9,12 @@ import { registerSchema, loginSchema, updateSchema } from '../../validation/user
 import { validate } from '../../middleware/joiValidator.js'
 import { validId } from '../../middleware/validId.js'
 import { isAuthenticated } from '../../middleware/isAuthenticated.js'
+import { hasAnyPermissions } from '../../middleware/hasPermissions.js'
+import { ObjectId } from "mongodb";
 
 
 
-
-router.get('', async (req, res) => {
+router.get('', isAuthenticated, hasAnyPermissions(['canViewData']), async (req, res) => {
   try {
     const {keywords, role, minAge, maxAge, page, limit, sortBy} = req.query;
 
@@ -58,7 +59,7 @@ router.get('', async (req, res) => {
   }
   
 });
-//^ working with validate 03-04
+//^ working with 04-02
 
 router.get('/me', isAuthenticated, async (req,res) => {
 try {
@@ -75,7 +76,7 @@ try {
 }
 })
 
-router.get('/:userId', isAuthenticated, validId('userId'), async (req, res) => {
+router.get('/:userId', isAuthenticated, validId('userId'), hasAnyPermissions(['canViewData']), async (req, res) => {
  try {
   const userId = req.userId
   const user = await getOneUser(userId)
@@ -95,9 +96,30 @@ catch (err) {
   res.status(500).send('Server Error')
 }
 })
-//^ Working with validate 03-02
+//^ Working with 04-02
 
-
+router.patch('/me', isAuthenticated, async (req,res) => {
+  try {
+  const userId = req.user.id;
+  console.log(userId)
+  // const user = await getOneUser(userId);
+    // if (!user) {
+    //   return res.status(404).json({ error: `userId ${userId} is not a valid ObjectId.` });
+    // }
+    const updatedData = req.body;
+    updatedData.role = req.user.role
+    updatedData.lastUpdated = new Date();
+    const result = await updateUser(userId, updatedData)
+    if (!result) {
+      res.status(404).json({message: 'User not found'})
+    } else {
+      res.status(200).json({message: 'User updated successfully'})
+    }
+  }
+    catch(err){
+      res.status(500).send('Server Error')
+    }
+})
 
 router.post('/register', validate(registerSchema), async (req, res) => {
   try {
@@ -145,7 +167,7 @@ router.post('/login', validate(loginSchema), async (req,res) => {
 })
 //^ Working with validate 03-02
 
-router.patch('/:userId', validate(updateSchema), validId('userId'), async (req,res) => {
+router.patch('/:userId', isAuthenticated, validate(updateSchema), validId('userId'), hasAnyPermissions(['canEditAnyUser']), async (req,res) => {
   try {
   const userId = req.userId;
   const user = await getOneUser(userId);
@@ -167,7 +189,7 @@ router.patch('/:userId', validate(updateSchema), validId('userId'), async (req,r
 });
 //^ Working with validate 03-02
 
-router.delete('/:userId', validId('userId'), async (req,res) => {
+router.delete('/:userId', isAuthenticated, validId('userId'), hasAnyPermissions(['canEditAnyUser']), async (req,res) => {
  try { 
   const userId = req.userId;
   try{

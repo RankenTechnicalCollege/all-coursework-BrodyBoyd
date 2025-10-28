@@ -44,7 +44,7 @@ async function ping() {
 //User endpoints
 async function getUsers(filter, sort, limit=0, skip=0){
   const db = await connect();
-  let query = db.collection('users').find(filter).sort(sort);
+  let query = db.collection('user').find(filter).sort(sort);
 
   if (skip > 0) {
     query = query.skip(skip);
@@ -57,30 +57,30 @@ async function getUsers(filter, sort, limit=0, skip=0){
 
 async function getOneUser(userId){
   const db = await connect();
-  return db.collection('users').findOne({_id: userId})
+  return db.collection('user').findOne({_id: userId})
 }
 
 async function registerUser(user){
    const db = await connect();
    user._id = new ObjectId();
-   return db.collection('users').insertOne(user);
+   return db.collection('user').insertOne(user);
 }
 
 async function getUserByEmail(email){
   const db = await connect();
-  const user = await db.collection('users').findOne({email:email})
+  const user = await db.collection('user').findOne({email:email})
   return user;
 }
 
 async function updateUser(userId, updatedData){
   const db = await connect();
-  const result = await db.collection('users').updateOne({_id: userId}, {$set: updatedData})
+  const result = await db.collection('user').updateOne({_id: userId}, {$set: updatedData})
   return result;
 }
 
 async function deleteUser(userId){
   const db = await connect();
-  const result = await db.collection('users').deleteOne({_id: userId});
+  const result = await db.collection('user').deleteOne({_id: userId});
   return result;
 }
 
