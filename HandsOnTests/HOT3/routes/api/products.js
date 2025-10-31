@@ -6,25 +6,57 @@ const debugProducts = debug('app:products');
 import { getProducts, getOneProduct, createProduct, getProductByName, updateProduct, deleteProduct } from '../../database.js';
 import { validId } from '../../middleware/validId.js';
 import { validate } from '../../middleware/joiValidater.js';
+import { hasRole } from '../../middleware/hasRole.js';
 import { newProductSchema, updateProductSchema } from '../../validation/productSchema.js';
+import { isAuthenticated } from '../../middleware/isAuthenticated.js';
 
 router.use(express.urlencoded({ extended: false }));
 
 router.get('/', async (req, res) => {
   try {
-  const products = await getProducts();
-  if (!products) {
-    return res.status(500).json({ error: 'Failed to fetch products' });
-  } else {
-    res.status(200).json(products);
-  }}
-  catch (error) {
-    debugProducts(error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+  const {keywords, category, minPrice, maxPrice, pageNumber, pageSize, sortBy} = req.query;
+
+    const pageNum = parseInt(pageNumber) || 1;
+    const limitNum = parseInt(pageSize) || 5;
+    const skip = limitNum > 0 ? (pageNum - 1) * limitNum : 0;
+
+    const filter = {};
+    if (keywords) { filter.$text = { $search: keywords }; }
+    if (category) { filter.category = category; }
+
+    if (maxPrice || minPrice){
+      const priceFilter = {}
+
+      if (maxPrice) {priceFilter.$gte = parseInt(maxPrice)}
+      if (minPrice) {priceFilter.$lte = parseInt(minPrice)}
+
+      filter.price = priceFilter
+    }
+
+    
+    const sortOptions = {
+      name: {name: 1},
+      category: {category: 1, name: 1},
+      lowestPrice: {price: 1, name: 1},
+      newest: {creationDate: -1, name: 1},
+    };
+    const sort = sortOptions[sortBy] || {name: 1}
+    
+
+    const products = await getProducts(filter, sort, limitNum, skip);
+    if (!products){
+    return res.status(500).send('Error retrieving users')
+  }else {
+  res.status(200).json(products);
   }
+  }
+  catch (err) {
+    return res.status(500).send('Error')
+  }
+  
 });
 
-router.get('/:productId', validId('productId'), async (req, res) => {
+router.get('/:productId', isAuthenticated, validId('productId'), async (req, res) => {
   try {
     const productId = req.productId;
     const product = await getOneProduct(productId);
@@ -41,7 +73,7 @@ router.get('/:productId', validId('productId'), async (req, res) => {
   }
 });
 
-router.get('/name/:productName', async (req, res) => {
+router.get('/name/:productName', isAuthenticated, async (req, res) => {
   try {
     const productName = req.params.productName;
     const product = await getProductByName(productName);
@@ -55,9 +87,10 @@ router.get('/name/:productName', async (req, res) => {
   }
 });
 
-router.post('/', validate(newProductSchema), async (req, res) => {
+router.post('/', isAuthenticated, hasRole('admin'), validate(newProductSchema), async (req, res) => {
   try { 
     const newProduct = req.body;
+    newProduct.creationDate = new Date()
     const result = await createProduct(newProduct);
     if (result.insertedId) {
       res.status(201).json({ message: 'Product created', productId: result.insertedId });
@@ -69,7 +102,7 @@ router.post('/', validate(newProductSchema), async (req, res) => {
     }
 });
 
-router.patch('/:productId', validId('productId'), validate(updateProductSchema), async (req, res) => {
+router.patch('/:productId', isAuthenticated, hasRole('admin'), validId('productId'), validate(updateProductSchema), async (req, res) => {
   try {
     const productId = req.productId;
     const product = await getOneProduct(productId);
@@ -89,7 +122,7 @@ router.patch('/:productId', validId('productId'), validate(updateProductSchema),
   }
 });
 
-router.delete('/:productId', validId('productId'), async (req,res)=> {
+router.delete('/:productId', isAuthenticated, hasRole('admin'), validId('productId'), async (req,res)=> {
   const productId = req.productId;
   try {
     const results = await deleteProduct(productId);

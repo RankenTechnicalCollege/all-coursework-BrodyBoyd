@@ -98,28 +98,38 @@ catch (err) {
 })
 //^ Working with 04-02
 
-router.patch('/me', isAuthenticated, async (req,res) => {
+router.patch('/me', isAuthenticated, async (req, res) => {
   try {
-  const userId = req.user.id;
-  console.log(userId)
-  // const user = await getOneUser(userId);
-    // if (!user) {
-    //   return res.status(404).json({ error: `userId ${userId} is not a valid ObjectId.` });
-    // }
-    const updatedData = req.body;
-    updatedData.role = req.user.role
-    updatedData.lastUpdated = new Date();
-    const result = await updateUser(userId, updatedData)
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Unauthorized: Missing user info' });
+    }
+
+    const userId = req.user.id;
+    const correctId = new ObjectId(userId)
+    console.log(correctId);
+
+    const user = await getOneUser(correctId);
+    if (!user) {
+      return res.status(404).json({ error: `User with ID ${userId} not found.` });
+    }
+
+    const updatedData = {
+      ...req.body,
+      role: req.user.role,
+      lastUpdated: new Date()
+    };
+
+    const result = await updateUser(correctId, updatedData);
     if (!result) {
-      res.status(404).json({message: 'User not found'})
+      res.status(404).json({ message: 'User not found' });
     } else {
-      res.status(200).json({message: 'User updated successfully'})
+      res.status(200).json({ message: 'User updated successfully' });
     }
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).send('Server Error');
   }
-    catch(err){
-      res.status(500).send('Server Error')
-    }
-})
+});
 
 router.post('/register', validate(registerSchema), async (req, res) => {
   try {
