@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Fugaz+One&family=Luckiest+Guy&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brody: #c67efc;
+
+  --screen-sm: 480px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+
+  --spacing-1: 8px;
+  --spacing-2: 12px;
+  --spacing-3: 16px;
+  --spacing-4: 24px;
+  --spacing-5: 32px;
+  --spacing-6: 48px;
+
+  --text-base: 18px;
+
+  --margin-4: 20px;
+  --margin-3: 16px;
+  --margin-2: 12px;
+
+}
+
+@layer base {
+  html {
+    @apply bg-slate-600 text-white text-lg;
+    font-family: 'Luckiest Guy';
+  }
+}
