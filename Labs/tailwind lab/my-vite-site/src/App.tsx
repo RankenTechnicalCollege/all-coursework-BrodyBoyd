@@ -85,7 +85,7 @@ function App() {
           <div className='bg-green-500 p-6 rounded-lg col-span-1'>1</div>
           <div className='bg-amber-500 p-6 rounded-lg col-span-1'>2</div>
           <div className='bg-cyan-400 p-6 rounded-lg col-span-1'>3</div>
-          <div className='bg-red-500 p-6 rounded-lg col-span-3'>4</div>
+          <div className='bg-red-500 p-6 rounded-lg col-span-3'></div>
           <div className='bg-red-500 p-6 rounded-lg row-span-2'>5</div>
 
         </div>
