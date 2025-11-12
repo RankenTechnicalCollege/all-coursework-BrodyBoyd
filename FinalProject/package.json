@@ -22,6 +22,7 @@
   "author": "Brody Boyd",
   "license": "MIT",
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.17",
     "bcrypt": "^6.0.0",
     "better-auth": "^1.3.28",
     "cors": "^2.8.5",
@@ -30,6 +31,7 @@
     "joi": "^18.0.1",
     "mongodb": "^6.20.0",
     "nodemon": "^3.1.10",
+    "tailwindcss": "^4.1.17",
     "valibot": "^1.1.0"
   }
 }
