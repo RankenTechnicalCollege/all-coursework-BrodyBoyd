@@ -1,12 +1,21 @@
-import { useState } from 'react'
+import { Link } from 'react-router-dom';
 
-import './App.css'
+type User = {
+	fullName: string,
+	role: string,
+	email: string
 
-function UserListItem() {
-	
+}
+
+type Props = {
+	user: User
+}
+
+function UserListItem({ user }: Props) {
+	//pass user through the function
+	const currentUser = user;
   return (
     <>
-			<section className="grid grid-cols-1 lg:grid-cols-3 pt-16 bg-blue-300 overflow-auto h-screen">
 				<div className="w-full px-4 mx-auto col-span-1">
 					<div className="relative flex flex-col min-w-0 break-words bg-gray-950 w-full mb-6 shadow-xl rounded-lg mt-16">
 						<div className="px-6">
@@ -19,13 +28,13 @@ function UserListItem() {
 							</div>
 							<div className="text-center mt-12">
 								<h3 className="text-xl font-semibold leading-normal text-gray-50 mb-2">
-									Full Name
+									{user.fullName}
 								</h3>
 								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">role</i>
+									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.role}</i>
 								</div>
 								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">email</i>
+									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.email}</i>
 								</div>
 							</div>
 							<div className="mt-3 py-10 border-t border-blueGray-200 text-center">
@@ -35,22 +44,25 @@ function UserListItem() {
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												Assigned Bugs
 											</p>
-											<p>Bugs....</p>
+											<p className='text-white'>Bugs....</p>
 										</div>
 										<div className='pb-4 border-4  border-indigo-300'>
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												Created Bugs
 											</p>
-											<p>Bugs....</p>
+											<p className='text-white'>Bugs....</p>
 										</div>
 										
 									</div>
+									<div className='mt-4 hover:-translate-y-1 ease-in-out transition'>
+									<Link to='/UserEditor' state={{user: currentUser}}><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit User</span></Link>
 								</div>
+								</div>
+								
 							</div>
 						</div>
 					</div>
 				</div>
-				</section>
 				
     </>
   )

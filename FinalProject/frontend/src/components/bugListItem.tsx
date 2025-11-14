@@ -1,13 +1,26 @@
-import { useState } from 'react'
+import { Link } from 'react-router-dom';
+type Bug = {
+	title: string,
+	authorUsername: string,
+  authorEmail: string,
+  description: string,
+  stepsToReproduce: string,
+	classification: string,
+	creationDate: string,
+  closed: boolean
 
-import './App.css'
 
-function BugListItem() {
-	
+}
+
+type Props = {
+	bug: Bug
+}
+function BugListItem({ bug }: Props) {
+  const currentBug = bug;
+
   return (
     <>
-      <section className="grid grid-cols-1 lg:grid-cols-3 pt-10 bg-blue-300 overflow-auto h-screen">
-				<div className="w-full px-4 mx-auto col-span-1">
+      <div className="w-full px-4 mx-auto col-span-1">
 					<div className="relative flex flex-col min-w-0 break-words bg-gray-950 w-full mb-6 shadow-xl rounded-lg mt-16">
 						<div className="px-6">
 							<div className="flex flex-wrap justify-center">
@@ -48,34 +61,36 @@ function BugListItem() {
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												Edits
 											</p>
-											<p>edits....</p>
+											<p className='text-white'>edits....</p>
 										</div>
 										<div className='pb-4 border-4  border-indigo-300 mb-4'>
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												Comments
 											</p>
-											<p>comments....</p>
+											<p className='text-white'>comments....</p>
 										</div>
 										<div className=' pb-4 border-4  border-indigo-300 mb-4'>
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												TestCases
 											</p>
-											<p>testcases....</p>
+											<p className='text-white'>testcases....</p>
 										</div>
 										<div className='pb-4 border-4  border-indigo-300'>
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												Work Log
 											</p>
-											<p>work log hours....</p>
+											<p className='text-white'>work log hours....</p>
 										</div>
 										
 									</div>
+                  <div className='mt-4 hover:-translate-y-1 ease-in-out transition'>
+									<Link to='/BugEditor' state={{user: currentBug}} ><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit User</span></Link>
+								</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-      </section>				
     </>
   )
 }
