@@ -92,7 +92,7 @@ router.post('/new', isAuthenticated, validate(createBugSchema), hasAnyPermission
     newBug.testcase = []
     newBug.closed = false;
     newBug.classification = "unclassified";
-    newBug.createdBy = req.user.id
+    newBug.createdBy = req.user.email
 
   const result = await createBug(newBug);
 
@@ -299,7 +299,7 @@ router.post('/:bugId/comments', isAuthenticated, validId('bugId'), validate(crea
 try {
     const newComment = req.body;
     const bugId = req.bugId
-    newComment.author = req.user.fullName
+    newComment.author = req.user.name
     newComment.authorId = req.user.id
     newComment.createdAt = new Date()
     

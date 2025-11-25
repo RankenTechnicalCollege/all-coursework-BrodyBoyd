@@ -8,6 +8,9 @@ import { userRouter } from './routes/api/user.js';
 import { BugRouter } from './routes/api/bug.js';
 import { auth } from "./auth.js"; 
 import { toNodeHandler } from "better-auth/node";
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
 
 
 const app = express();
@@ -24,6 +27,9 @@ app.use('/api/user', userRouter);
 app.use('/api/bug', BugRouter)
 const port = process.env.PORT || 8080;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 app.listen(port, () => {
   debugServer(`Server is now running on http://localhost:${port}`)
 })
@@ -32,3 +38,6 @@ app.get('/api', (req, res) => {
   res.send('Hello World from the back end route!')
 });
 
+app.get(['/', '/BugList', '/UserList','/Login', '/Register', '/UserEditor', '/BugEditor'], (req, res) => {
+  res.sendFile(join(__dirname, 'frontend/dist/index.html'));
+});

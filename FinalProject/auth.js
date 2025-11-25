@@ -20,19 +20,19 @@ export const auth = betterAuth({
     additionalFields: {
       givenName: {
         type:"string",
-        required: true
+        required: false
       },
       familyName: {
         type: "string",
-        required: true,
+        required: false,
       },
-      fullName: {
+      name: {
         type:"string",
-        required: true
+        required: false
       },
       role: {
         type: "object",
-        required: true, 
+        required: false, 
       },
       createdBugs: {
         type: "object",
