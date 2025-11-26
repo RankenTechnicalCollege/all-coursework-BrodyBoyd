@@ -21,7 +21,6 @@ import { useState } from 'react';
 function BugEditor() {
   const [title, setTitle] = useState('');
   // const [authorUsername, setAuthorUsername] = useState('');
-  const [authorEmail, setAuthorEmail] = useState('');
   const [bugDescription, setBugDescription] = useState('');
   const [stepsToReproduce, setStepsToReproduce] = useState('');
   const [classification, setClassification] = useState('');
@@ -37,13 +36,57 @@ function BugEditor() {
 
 	const location = useLocation();
   const bug = (location.state as { bug: any }).bug;
+  const bugId = bug._id
 
-  function handleSubmit() {
-    console.log(title, fixedStatus, authorEmail)
+  const handleSubmit = async () => {
+  try {
+    interface BugUpdate {
+  authorEmail?: string;
+  title?: string;
+  bugDescription?: string;
+  stepsToReproduce?: string;
+  classification?: string;
+  fixedStatus?: boolean;
+}
+
+const updatedData: BugUpdate = {};
+
+
+    if (title !== '') updatedData.title = title;
+    if (bugDescription !== '') updatedData.bugDescription = bugDescription;
+    if (stepsToReproduce !== '') updatedData.stepsToReproduce = stepsToReproduce;
+    if (classification !== '') updatedData.classification = classification;
+    updatedData.fixedStatus = fixedStatus;
+
+    await fetch(`/api/bug/${bugId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(updatedData), // <-- send fields directly
+    });
+
     navigate('/BugList');
-
+  } catch (error) {
+    console.error("Error updating profile:", error);
   }
-  console.log(bug)
+};
+
+const addComment = async () => {
+  try {
+    await fetch(`/${bugId}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(commentText), // <-- send fields directly
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+  }
+}
   return (
     <>
     <section className="py-40 bg-blue-100  bg-opacity-50 h-full">
@@ -72,20 +115,6 @@ function BugEditor() {
                     placeholder={bug.title}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm text-gray-800">Author Email</label>
-                <div className="w-full inline-flex border">
-                  <div className="w-1/12 pt-2 bg-gray-100">
-                  </div>
-                  <input
-                    type="text"
-                    className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={bug.createdBy}
-                    value={authorEmail}
-                    onChange={(e) => setAuthorEmail(e.target.value)}
                   />
                 </div>
               </div>
@@ -244,7 +273,7 @@ function BugEditor() {
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
-              <button type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+              <button type='button' onClick={() => addComment()} className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
                 Add comment
               </button>
             </div>

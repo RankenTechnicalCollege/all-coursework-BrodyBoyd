@@ -1,17 +1,7 @@
 import { Link } from 'react-router-dom';
 
-type User = {
-	fullName: string,
-	role: string,
-	email: string
 
-}
-
-type Props = {
-	user: User
-}
-
-function UserListItem({ user }: Props) {
+function UserListItem(user: any ) {
 	//pass user through the function
 	const currentUser = user;
   return (
@@ -28,7 +18,7 @@ function UserListItem({ user }: Props) {
 							</div>
 							<div className="text-center mt-12">
 								<h3 className="text-xl font-semibold leading-normal text-gray-50 mb-2">
-									{user.fullName}
+									{user.name}
 								</h3>
 								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
 									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.role}</i>

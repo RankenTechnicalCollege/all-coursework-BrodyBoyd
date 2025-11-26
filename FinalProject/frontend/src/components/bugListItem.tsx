@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 
 function BugListItem({ bug }: any) {
   const currentBug = bug;
+	
+	const fixedStatus = bug.closed ? 'True' : 'False';
 
   return (
     <>
@@ -40,7 +42,7 @@ function BugListItem({ bug }: any) {
 									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">{bug.dateOfCreation}</i>
 								</div>
 								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">Fixed: {bug.closed}</i>
+									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">Fixed: {fixedStatus}</i>
 								</div>
 								{/* impliment a (if true) then the fixed in version is here */}
 							</div>
