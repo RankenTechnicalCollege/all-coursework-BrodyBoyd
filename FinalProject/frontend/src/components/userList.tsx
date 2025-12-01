@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import UserListItem from './userListItem';
-
+import axios from 'axios'
 // type User = {
 //   username: string;
 //   email: string;
@@ -14,11 +14,6 @@ function UserList() {
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
-  const response = await fetch('/api/user');
-  if (!response.ok) throw new Error('Failed to fetch bugs');
-  return response.json();
-};
 
   // const { 
   //       // data: session, 
@@ -26,10 +21,20 @@ function UserList() {
   //   } = authClient.useSession()
 
   useEffect(() => {
-    fetchUsers()
-      .then(data => setUsers(data))
-      .catch(err => setError(err))
-      .finally(() => setIsPending(false));
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/user`);
+        setUsers(response.data);
+        setIsPending(false);
+      } catch (err) {
+        setError('Failed to fetch users');
+        setIsPending(false);
+        console.error('Error fetching users:', err);
+      }
+    };
+
+    fetchUsers();
+
   }, []);
 
   if (isPending) {

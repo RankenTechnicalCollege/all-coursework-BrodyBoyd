@@ -177,7 +177,7 @@ router.post('/login', validate(loginSchema), async (req,res) => {
 })
 //^ Working with validate 03-02
 
-router.patch('/:userId', isAuthenticated, validate(updateSchema), validId('userId'), hasAnyPermissions(['canEditAnyUser']), async (req,res) => {
+router.patch('/:userId', isAuthenticated, validId('userId'), hasAnyPermissions(['canEditAnyUser']), async (req,res) => {
   try {
   const userId = req.userId;
   const user = await getOneUser(userId);

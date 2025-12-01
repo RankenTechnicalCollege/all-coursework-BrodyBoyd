@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 
-function UserListItem(user: any ) {
+function UserListItem({user}: any ) {
 	//pass user through the function
 	const currentUser = user;
   return (
@@ -21,7 +21,8 @@ function UserListItem(user: any ) {
 									{user.name}
 								</h3>
 								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.role}</i>
+									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.role?.join(', ')}
+</i>
 								</div>
 								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
 									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.email}</i>
@@ -34,19 +35,38 @@ function UserListItem(user: any ) {
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												Assigned Bugs
 											</p>
-											<p className='text-white'>Bugs....</p>
+											<p className='text-white'>{Array.isArray(user.assignedBugs) && user.assignedBugs.length > 0 ? (
+													user.assignedBugs.map((bug: any, idx: number) => (
+														<div key={bug._id || idx} className="mb-2 text-white">
+															<p className="font-semibold text-blue-200">{bug.title}</p>
+															<p className="italic">{bug.status}</p>
+														</div>
+													))
+												) : (
+													<p className="text-gray-400">No bugs assigned.</p>
+												)}</p>
 										</div>
 										<div className='pb-4 border-4  border-indigo-300'>
 											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
 												Created Bugs
 											</p>
-											<p className='text-white'>Bugs....</p>
+											<p className='text-white'>{Array.isArray(user.createdBugs) && user.createdBugs.length > 0 ? (
+													user.createdBugs.map((bug: any, idx: number) => (
+														<div key={bug._id || idx} className="mb-2 text-white">
+															<p className="font-semibold text-blue-200">{bug.title}</p>
+															<p className="italic">{bug.status}</p>
+														</div>
+													))
+												) : (
+													<p className="text-gray-400">No bugs Created.</p>
+												)}</p>
 										</div>
 										
-									</div>
+									</div> 
+									
 									<div className='mt-4 hover:-translate-y-1 ease-in-out transition'>
-									<Link to='/UserEditor' state={{user: currentUser}}><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit User</span></Link>
-								</div>
+										<Link to='/UserEditor' state={{user: currentUser}}><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit User</span></Link>
+									</div>
 								</div>
 								
 							</div>

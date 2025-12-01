@@ -14,12 +14,14 @@ const loginSchema = Joi.object({
   }).required();
 
   const updateSchema = Joi.object({
-        password: Joi.string().optional(),
-        fullName: Joi.string().optional(),
-        givenName: Joi.string().optional(),
-        familyName: Joi.string().optional(),
-        role: Joi.string().valid('Developer', 'Business Analyst', 'Quality Analyst', 'Product Manager', 'Technical Manager').optional()
-      }).required();
+    email: Joi.string().optional(),
+    name: Joi.string().optional(),
+    password: Joi.string().optional(),
+    fullName: Joi.string().optional(),
+    givenName: Joi.string().optional(),
+    familyName: Joi.string().optional(),
+    role: Joi.string().valid('Developer', 'Business Analyst', 'Quality Analyst', 'Product Manager', 'Technical Manager').optional()
+  }).required();
 
 
 export { registerSchema, loginSchema, updateSchema }

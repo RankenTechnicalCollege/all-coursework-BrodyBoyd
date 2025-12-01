@@ -1,34 +1,95 @@
 
 import { useNavigate  } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import React, { useState,  } from 'react';
+import axios from 'axios';
+import userEditSchema from '../schemas/userEditSchema';
+import { z } from "zod";
 
-type User = {
-	fullName: string,
-	role: string,
-	email: string
-
-}
 
 // type Props = {
 // 	user: User
 // }
 
-function UserEditor() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState('');
+function UserEditor({ showError, showSuccess }: { showError: (message: string) => void; showSuccess: (message: string) => void }) {
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const navigate = useNavigate();
+  // const [formData, setFormData] = useState({
+  //   email: email,
+  //   name: "",
+  //   role: [] as string[],
+  // });
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+
+  const handleCheckboxChange = (role: any) => {
+    setSelectedRoles((prevSelected: any) =>
+      prevSelected.includes(role)
+        ? prevSelected.filter((r: any) => r !== role) // Remove if already selected
+        : [...prevSelected, role] // Add if not selected
+    );
+  };
+
+
+
+
+
+  const roles = [
+  'Developer',
+  'Business Analyst',
+  'Quality Analyst',
+  'Product Manager',
+  'Technical Manager',
+  'Admin'
+];
+
 
 	const location = useLocation();
-  const user = (location.state as { user: User }).user;
+  const user = (location.state as { user: any }).user;
+  const userId = user._id;
 
-  function handleSubmit() {
-    console.log(email, password, role, fullName)
-    navigate('/UserList');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setValidationErrors({});
 
+    const formData = {
+    email: email,
+    name: name,
+    role: selectedRoles
   }
+  console.log(userId)
+    try {
+      const validatedData = userEditSchema.parse(formData);
+      // const validData = JSON.stringify(validatedData)
+      await axios.patch(`http://localhost:8080/api/user/${userId}`, validatedData);
+      showSuccess("User updated successfully");
+      navigate('/UserList');
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach((issue) => {
+          if (issue.path.length > 0) {
+            fieldErrors[issue.path[0] as string] = issue.message;
+          }
+        });
+        setValidationErrors(fieldErrors);
+        return;
+      }
+      showError("Failed to update user");
+      console.error("Error updating user:", err);
+    }
+  };
+
+  // const handleRoleChange = (role: string, checked: boolean) => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     role: checked
+  //       ? [...prev.role, role]
+  //       : prev.role.filter((r) => r !== role),
+  //   }));
+  // };
+
   return (
     <>
     <section className="py-40 bg-blue-100  bg-opacity-50 h-full">
@@ -37,7 +98,7 @@ function UserEditor() {
           <div className="max-w-sm mx-auto md:w-full md:mx-0">
             <div className="inline-flex items-center space-x-4">
             
-              <h1 className="text-gray-800">{user.fullName}</h1>
+              <h1 className="text-gray-800">{user.name}</h1>
             </div>
           </div>
         </div>
@@ -70,7 +131,11 @@ function UserEditor() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
+                
               </div>
+              {validationErrors.email && (
+                <p className="text-sm text-red-500">{validationErrors.email}</p>
+              )}
             </div>
           </div>
 
@@ -100,11 +165,14 @@ function UserEditor() {
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={user.fullName}
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder={user.name}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
+                {validationErrors.name && (
+                <p className="text-sm text-red-500">{validationErrors.name}</p>
+              )}
               </div>
               
               <div>
@@ -125,13 +193,30 @@ function UserEditor() {
                       />
                     </svg>
                   </div>
-                  <input
-                    type="text"
-                    className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={user.role}
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                  />
+
+                 <div className="input-group">
+                  {roles.map((role, index) => (
+                    <label key={index} className="checkbox">
+                      <input
+                        className="checkbox__input"
+                        type="checkbox"
+                        name={`role-${index}`}
+                        value={role}
+                        checked={selectedRoles.includes(role)}
+                        onChange={() => handleCheckboxChange(role)}
+                      />
+                      <span className="checkbox__label">{role}</span>
+                    </label>
+                  ))}
+
+                  {/* Optional: Display selected roles */}
+                  <div style={{ marginTop: '1rem' }}>
+                    <strong>Selected Roles:</strong> {selectedRoles.join(', ') || 'None'}
+                  </div>
+
+
+                </div>
+
                 </div>
               </div>
             </div>
@@ -161,8 +246,8 @@ function UserEditor() {
                   type="password"
                   className="w-11/12 focus:outline-none focus:text-gray-600 p-2 ml-4"
                   placeholder="New"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value='coming soon'
+                  disabled
                 />
               </div>
             </div>

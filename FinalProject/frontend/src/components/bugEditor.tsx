@@ -2,7 +2,9 @@
 import { useNavigate  } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
-
+import bugEditSchema from '../schemas/bugEditSchema'
+import {z} from 'zod';
+import axios from 'axios';
 // type Bug = {
 // 	title: string,
 // 	authorUsername: string,
@@ -17,30 +19,7 @@ import { useState } from 'react';
 // type Props = {
 // 	user: User
 // }
-
-function BugEditor() {
-  const [title, setTitle] = useState('');
-  // const [authorUsername, setAuthorUsername] = useState('');
-  const [bugDescription, setBugDescription] = useState('');
-  const [stepsToReproduce, setStepsToReproduce] = useState('');
-  const [classification, setClassification] = useState('');
-  const [fixedStatus, setFixedStatus] = useState(false);
-  const [testCaseTitle, setTestCaseTitle] = useState('');
-  const [testcaseStatus, setTestcaseStatus] = useState('');
-  const [testcaseDescription, setTestcaseDescription] = useState('');
-  const [commentText, setCommentText] = useState('');
-  const [logHours, setLogHours] = useState('');
-
-
-  const navigate = useNavigate();
-
-	const location = useLocation();
-  const bug = (location.state as { bug: any }).bug;
-  const bugId = bug._id
-
-  const handleSubmit = async () => {
-  try {
-    interface BugUpdate {
+interface BugUpdate {
   authorEmail?: string;
   title?: string;
   bugDescription?: string;
@@ -49,27 +28,53 @@ function BugEditor() {
   fixedStatus?: boolean;
 }
 
+function BugEditor({ showError, showSuccess }: { showError: (message: string) => void; showSuccess: (message: string) => void }) {
+  const [title, setTitle] = useState('');
+  // const [authorUsername, setAuthorUsername] = useState('');
+  const [bugDescription, setBugDescription] = useState('');
+  const [stepsToReproduce, setStepsToReproduce] = useState('');
+  const [classification, setClassification] = useState('');
+  const [testCaseTitle, setTestCaseTitle] = useState('');
+  const [testcaseStatus, setTestcaseStatus] = useState('');
+  const [testcaseDescription, setTestcaseDescription] = useState('');
+  const [commentText, setCommentText] = useState('');
+  const [logHours, setLogHours] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+
+  const navigate = useNavigate();
+ 
+	const location = useLocation();
+  const bug = (location.state as { bug: any }).bug;
+  const bugId = bug._id
+
+
 const updatedData: BugUpdate = {};
 
-
+  const handleSubmit = async () => {
+  try {
+    
+    navigate('/BugList');
     if (title !== '') updatedData.title = title;
     if (bugDescription !== '') updatedData.bugDescription = bugDescription;
     if (stepsToReproduce !== '') updatedData.stepsToReproduce = stepsToReproduce;
-    if (classification !== '') updatedData.classification = classification;
-    updatedData.fixedStatus = fixedStatus;
-
-    await fetch(`/api/bug/${bugId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(updatedData), // <-- send fields directly
-    });
-
-    navigate('/BugList');
-  } catch (error) {
-    console.error("Error updating profile:", error);
+    const validatedData = bugEditSchema.parse(updatedData);
+    await axios.patch(`http://localhost:8080/api/bug/${bugId}`, validatedData);
+    showSuccess("Bug updated successfully");
+    
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+            const fieldErrors: Record<string, string> = {};
+            err.issues.forEach((issue) => {
+              if (issue.path.length > 0) {
+                fieldErrors[issue.path[0] as string] = issue.message;
+              }
+            });
+            setValidationErrors(fieldErrors);
+            return;
+          }
+    showError("Failed to update Bug");
+    console.error("Error updating profile:", err);
   }
 };
 
@@ -117,6 +122,9 @@ const addComment = async () => {
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 </div>
+                {validationErrors.title && (
+                <p className="text-sm text-red-500">{validationErrors.title}</p>
+              )}
               </div>
               <div>
                 <label className="text-sm text-gray-800">Description</label>
@@ -131,6 +139,9 @@ const addComment = async () => {
                     onChange={(e) => setBugDescription(e.target.value)}
                   />
                 </div>
+                {validationErrors.bugDescription && (
+                <p className="text-sm text-red-500">{validationErrors.bugDescription}</p>
+              )}
               </div>
               <div>
                 <label className="text-sm text-gray-800">Steps To Reproduce</label>
@@ -145,7 +156,35 @@ const addComment = async () => {
                     onChange={(e) => setStepsToReproduce(e.target.value)}
                   />
                 </div>
+                {validationErrors.stepsToReproduce && (
+                <p className="text-sm text-red-500">{validationErrors.stepsToReproduce}</p>
+              )}
               </div>
+              
+            </div>
+            <div className="md:w-3/12 text-center md:pl-6">
+              <button type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-400 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+                <svg
+                  fill="none"
+                  className="w-4 text-white mr-2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Update
+              </button>
+            </div>
+          </div>
+          <hr/>
+          <div className="md:inline-flex w-full space-y-4 md:space-y-0 p-8 text-gray-500 items-center">
+            <h2 className="md:w-4/12 max-w-sm mx-auto text-gray-800">Classification</h2>
+            <div className="md:w-2/3 mx-auto max-w-sm space-y-5">
               <div>
                 <label className="text-sm text-gray-800">Classificaition</label>
                 <div className="w-full inline-flex border">
@@ -166,13 +205,13 @@ const addComment = async () => {
                   <ul className="w-48 bg-neutral-primary-soft border border-default rounded-base">
                     <li className="w-full border-b border-default">
                         <div className="flex items-center ps-3">
-                            <input id="list-radio-license" type="radio" onClick={() => setFixedStatus(true)} value="" name="list-radio" className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"/>
+                            <input id="list-radio-license" type="radio" value="" name="list-radio" className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"/>
                             <label htmlFor="list-radio-license" className="w-full py-3 select-none ms-2 text-sm font-medium text-heading">True </label>
                         </div>
                     </li>
                     <li className="w-full border-b border-default">
                         <div className="flex items-center ps-3">
-                            <input id="list-radio-id" type="radio" onClick={() => setFixedStatus(false)} value="" name="list-radio" className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"/>
+                            <input id="list-radio-id" type="radio" value="" name="list-radio" className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"/>
                             <label htmlFor="list-radio-id" className="w-full py-3 select-none ms-2 text-sm font-medium text-heading">False</label>
                         </div>
                     </li>
@@ -181,21 +220,8 @@ const addComment = async () => {
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
-              <button type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-400 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
-                <svg
-                  fill="none"
-                  className="w-4 text-white mr-2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-                Update
+              <button type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+                Add Testcase
               </button>
             </div>
           </div>
