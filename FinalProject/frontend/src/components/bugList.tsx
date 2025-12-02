@@ -47,9 +47,7 @@ const fetchBugs = async () => {
   return (
     <>
 			<section className="flex flex-col text-center align-middle pt-16 bg-blue-300 overflow-auto min-h-screen border-2 border-black">
-				<div>
-					<p className='align-center text-7xl text-gray-800 font-black pb-6'>All Bugs</p>
-				</div>
+        <h1 className="text-7xl text-gray-800 font-black pb-6">All Bugs</h1>
         <section className="grid grid-cols-1 lg:grid-cols-3 pt-16 bg-blue-300 overflow-auto h-screen">
           {bugs.map((bug: any) => (
             <BugListItem bug={bug}></BugListItem>

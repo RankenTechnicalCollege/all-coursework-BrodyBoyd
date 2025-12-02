@@ -27,8 +27,6 @@ function onClickLogout() {
             <>
                 <div className="hidden sm:flex sm:items-center">
                     <Link to='/' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Home</Link>
-                    <Link to='/BugList' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Bugs</Link>
-                    <Link to='/UserList' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Users</Link>
                 </div>
 
                 <div className="hidden sm:flex sm:items-center">
@@ -61,8 +59,6 @@ function onClickLogout() {
             <div className="block sm:hidden bg-white border-t-2 py-2">
             <div className="flex flex-col">
                 <Link to="/" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Home</Link>
-                <Link to="/BugList" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Bugs</Link>
-                <Link to="/UserList" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Users</Link>
             <div className="flex justify-between items-center border-t-2 pt-2">
                 <Link to="/Login" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Sign in</Link>
                 <Link to="/Register" className="text-gray-800 text-sm font-semibold border px-4 py-1 rounded-lg hover:text-purple-600 hover:border-purple-600">Sign up</Link>

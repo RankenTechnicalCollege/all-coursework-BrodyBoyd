@@ -22,7 +22,7 @@ import axios from 'axios';
 interface BugUpdate {
   authorEmail?: string;
   title?: string;
-  bugDescription?: string;
+  description?: string;
   stepsToReproduce?: string;
   classification?: string;
   fixedStatus?: boolean;
@@ -56,7 +56,7 @@ const updatedData: BugUpdate = {};
     
     navigate('/BugList');
     if (title !== '') updatedData.title = title;
-    if (bugDescription !== '') updatedData.bugDescription = bugDescription;
+    if (bugDescription !== '') updatedData.description = bugDescription;
     if (stepsToReproduce !== '') updatedData.stepsToReproduce = stepsToReproduce;
     const validatedData = bugEditSchema.parse(updatedData);
     await axios.patch(`http://localhost:8080/api/bug/${bugId}`, validatedData);
