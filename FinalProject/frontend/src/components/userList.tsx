@@ -23,7 +23,7 @@ function UserList() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/user`);
+        const response = await axios.get(`/api/user`);
         setUsers(response.data);
         setIsPending(false);
       } catch (err) {

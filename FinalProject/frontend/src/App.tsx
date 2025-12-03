@@ -10,6 +10,7 @@ import BugEditor from './components/bugEditor';
 import './App.css'
 import { ToastContainer, toast} from 'react-toastify'
 import AppLayout from './layouts/appLayout.tsx';
+import Dashboard from './components/dashboard.tsx';
 function App() {
 
 	function showError(message: string) {
@@ -28,6 +29,7 @@ function App() {
 				<Routes>
 					<Route path='/' element={<AppLayout />}>
 						<Route index element={<Home />} />
+						<Route path="/Dashboard" element={<Dashboard />} />
 						<Route path="/BugList" element={<BugList />} />
 						<Route path="/UserList" element={<UserList />} />
 						<Route path="/Login" element={<Login />} />

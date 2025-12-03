@@ -62,7 +62,7 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
     try {
       const validatedData = userEditSchema.parse(formData);
       // const validData = JSON.stringify(validatedData)
-      await axios.patch(`http://localhost:8080/api/user/${userId}`, validatedData);
+      await axios.patch(`/api/user/${userId}`, validatedData);
       showSuccess("User updated successfully");
       navigate('/UserList');
     } catch (err) {

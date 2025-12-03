@@ -41,6 +41,7 @@ function onClickLogout() {
                     <Link to='/' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Home</Link>
                     <Link to='/BugList' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Bugs</Link>
                     <Link to='/UserList' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Users</Link>
+                    <Link to='/Dashboard' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">dash</Link>
                 </div>
 
                 <div className="hidden sm:flex sm:items-center">

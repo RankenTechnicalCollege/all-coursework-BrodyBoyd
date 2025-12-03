@@ -59,7 +59,7 @@ const updatedData: BugUpdate = {};
     if (bugDescription !== '') updatedData.description = bugDescription;
     if (stepsToReproduce !== '') updatedData.stepsToReproduce = stepsToReproduce;
     const validatedData = bugEditSchema.parse(updatedData);
-    await axios.patch(`http://localhost:8080/api/bug/${bugId}`, validatedData);
+    await axios.patch(`/api/bug/${bugId}`, validatedData);
     showSuccess("Bug updated successfully");
     
   } catch (err) {

@@ -38,6 +38,6 @@ app.get('/api', (req, res) => {
   res.send('Hello World from the back end route!')
 });
 
-app.get(['/', '/BugList', '/UserList','/Login', '/Register', '/UserEditor', '/BugEditor'], (req, res) => {
+app.get(['/', '/BugList', '/UserList','/Login', '/Register', '/UserEditor', '/BugEditor', '/Dashboard'], (req, res) => {
   res.sendFile(join(__dirname, 'frontend/dist/index.html'));
 });
