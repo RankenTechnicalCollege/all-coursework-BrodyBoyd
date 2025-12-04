@@ -1,10 +1,22 @@
 import { Link } from 'react-router-dom';
-
+import { Trash2 } from 'lucide-react';
+import axios from 'axios';
 
 function BugListItem({ bug }: any ) {
   const currentBug = bug;
+	const bugId = bug._id;
 	
 	const fixedStatus = bug.closed ? 'True' : 'False';
+
+	const deleteTestcase = async (testcaseId: any) => {
+		try {
+			await axios.delete(`/api/bug/${bugId}/tests/${testcaseId}`);
+		} catch (error) {
+			console.error('Error deleting testcase:', error);
+		}
+		console.log('Delete testcase clicked');
+		window.location.reload();
+	}
 
   return (
     <>
@@ -56,13 +68,13 @@ function BugListItem({ bug }: any ) {
 											<p className='text-white'>
 												{Array.isArray(bug.comments) && bug.comments.length > 0 ? (
 													bug.comments.map((comment: any, idx: number) => (
-														<div key={comment._id || idx} className="mb-2 text-white">
-															<p className="font-semibold text-blue-200">{comment.author}</p>
-															<p className="italic">{comment.text}</p>
-															<p className="text-sm text-gray-400">
-																{new Date(comment.createdAt).toLocaleString()}
-															</p>
-														</div>
+															<div key={comment._id || idx} className="border-b border-gray-600/80 pb-2">
+																<p className="font-semibold text-blue-200">{comment.author}</p>
+																<p className="italic">{comment.text}</p>
+																<p className="text-sm text-gray-400">
+																	{new Date(comment.createdAt).toLocaleString()}
+																</p>
+															</div>
 													))
 												) : (
 													<p className="text-gray-400">No comments available.</p>
@@ -76,14 +88,27 @@ function BugListItem({ bug }: any ) {
 											<p className='text-white'>
 												{Array.isArray(bug?.testcase) && bug.testcase.length > 0 ? (
 													bug.testcase.map((result: any, idx: number) => (
-														<p key={idx} className="text-white">
-															{result.title}:{' '}
-															<span className={result.status === 'passed' ? 'text-green-400' : 'text-red-400'}>
-																{result.status}
-															</span>
-															<p>{result.description}</p>
+														<div className='flex mb-2 text-white border-b border-gray-600/80 pb-2' key={idx}>
+															<p key={idx} className="text-white w-11/12">
+																{result.title}:{' '}
+																<span className={result.status === 'passed' ? 'text-green-400' : 'text-red-400'}>
+																	{result.status}
+																</span>
+																<p>{result.description}</p>
+															</p>
+															<div>
+																<button
+																	type="button"
+																	onClick={() => deleteTestcase(result._id)}
+																	aria-label={`Delete testcase ${result.title || ''}`}
+																	title="Delete testcase"
+																	className="p-1 rounded cursor-pointer hover:bg-red-600/10 focus:outline-none focus:ring-2 focus:ring-red-500"
+																>
+																	<Trash2 size={18} color="#FF0000" />
+																</button>
+															</div>
 															<hr/>
-														</p>
+														</div>
 													))
 												) : (
 													<p className="text-gray-400">No test cases available.</p>
@@ -95,15 +120,17 @@ function BugListItem({ bug }: any ) {
 												Work Log
 											</p>
 											<p className='text-white'>
-												{Array.isArray(bug.workHoursLog) && bug.workHoursLog.length > 0 ? (
-												<div className="text-white space-y-1">
-													{bug.workHoursLog.map((hours: number, idx: number) => (
-														<p key={idx}>Entry {idx + 1}: {hours} hour{hours !== 1 ? 's' : ''}</p>
-													))}
-													<p className="mt-2 font-bold text-blue-300">
-														Total Hours: {bug.workHoursLog.reduce((sum: number, h: number) => sum + h, 0)}
-													</p>
-												</div>
+												{Array.isArray(bug.workLog) && bug.workLog.length > 0 ? (
+													<div className="text-white space-y-1">
+														{bug.workLog.map((log: { time: string; entryDate: string; enteredBy: string }, idx: number) => (
+															<p key={idx}>
+																Entry {idx + 1}: {log.time} hours (entered on {new Date(log.entryDate).toLocaleDateString()})
+															</p>
+														))}
+														{/* <p className="mt-2 font-bold text-blue-300">
+															Total Hours: {bug.workLog((sum: number, log: { time: string }) => sum + Number(log.time), 0)}
+														</p> */}
+													</div>
 												) : (
 													<p className="text-gray-400">No work hours logged.</p>
 												)}

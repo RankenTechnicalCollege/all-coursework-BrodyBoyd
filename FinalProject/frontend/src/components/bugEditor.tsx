@@ -5,6 +5,7 @@ import { useState } from 'react';
 import bugEditSchema from '../schemas/bugEditSchema'
 import {z} from 'zod';
 import axios from 'axios';
+
 // type Bug = {
 // 	title: string,
 // 	authorUsername: string,
@@ -38,8 +39,10 @@ function BugEditor({ showError, showSuccess }: { showError: (message: string) =>
   const [testcaseStatus, setTestcaseStatus] = useState('');
   const [testcaseDescription, setTestcaseDescription] = useState('');
   const [commentText, setCommentText] = useState('');
-  const [logHours, setLogHours] = useState('');
+  const [loggedHours, setLoggedHours] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [selectedValue, setSelectedValue] = useState("");
+
 
 
   const navigate = useNavigate();
@@ -49,9 +52,10 @@ function BugEditor({ showError, showSuccess }: { showError: (message: string) =>
   const bugId = bug._id
 
 
-const updatedData: BugUpdate = {};
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
+    const updatedData: BugUpdate = {};
+
   try {
     
     navigate('/BugList');
@@ -80,16 +84,50 @@ const updatedData: BugUpdate = {};
 
 const addComment = async () => {
   try {
-    await fetch(`/${bugId}/comments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(commentText), // <-- send fields directly
-    });
+    const text = commentText;
+    await axios.post(`/api/bug/${bugId}/comments`, { text });
+    navigate('/BugList');
+    window.location.reload();
   } catch (error) {
     console.error("Error updating profile:", error);
+  }
+};
+//add zod validation ^
+
+const logHours = async () => {
+  try {
+    const time = Number(loggedHours);
+    await axios.patch(`/api/bug/${bugId}/worklog`, { time });
+    navigate('/BugList');
+    window.location.reload();
+  } catch (error) {
+    console.error("Error logging hours:", error);
+  }
+}
+//add zod validation ^
+
+const addTestcase = async () => {
+  try {
+    const data = {title: testCaseTitle, status: testcaseStatus, description: testcaseDescription};
+    await axios.post(`/api/bug/${bugId}/tests`, data);
+    navigate('/BugList');
+    window.location.reload();
+  } catch (error) {
+    console.error("Error adding testcase:", error);
+  }
+}
+//add zod validation ^
+
+const classifyBug = async () => {
+  try {
+    const data = {classification: classification};
+    const closed = selectedValue === "true" ? true : false;
+    await axios.patch(`/api/bug/${bugId}/classify`, data);
+    await axios.patch(`/api/bug/${bugId}`, {closed: closed});
+    navigate('/BugList');
+    window.location.reload();
+  } catch (error) {
+    console.error("Error classifying bug:", error);
   }
 }
   return (
@@ -104,8 +142,8 @@ const addComment = async () => {
             </div>
           </div>
         </div>
-        <form onSubmit={handleSubmit}>
         <div className="bg-white space-y-6">  
+        <form onSubmit={handleSubmit}>
           <div className="md:inline-flex  space-y-4 md:space-y-0  w-full p-4 text-gray-500 items-center">
             <h2 className="md:w-1/3 mx-auto max-w-sm text-gray-800">Bug Info</h2>
             <div className="md:w-2/3 mx-auto max-w-sm space-y-5">
@@ -181,6 +219,7 @@ const addComment = async () => {
               </button>
             </div>
           </div>
+          </form>
           <hr/>
           <div className="md:inline-flex w-full space-y-4 md:space-y-0 p-8 text-gray-500 items-center">
             <h2 className="md:w-4/12 max-w-sm mx-auto text-gray-800">Classification</h2>
@@ -204,24 +243,50 @@ const addComment = async () => {
                 <div className="w-48 bg-neutral-primary-soft border border-default rounded-base">
                   <ul className="w-48 bg-neutral-primary-soft border border-default rounded-base">
                     <li className="w-full border-b border-default">
-                        <div className="flex items-center ps-3">
-                            <input id="list-radio-license" type="radio" value="" name="list-radio" className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"/>
-                            <label htmlFor="list-radio-license" className="w-full py-3 select-none ms-2 text-sm font-medium text-heading">True </label>
-                        </div>
+                      <div className="flex items-center ps-3">
+                        <input
+                          id="list-radio-true"
+                          type="radio"
+                          value="true"
+                          name="list-radio"
+                          checked={selectedValue === "true"}
+                          onChange={(e) => setSelectedValue(e.target.value)}
+                          className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
+                        />
+                        <label
+                          htmlFor="list-radio-true"
+                          className="w-full py-3 select-none ms-2 text-sm font-medium text-heading"
+                        >
+                          True
+                        </label>
+                      </div>
                     </li>
                     <li className="w-full border-b border-default">
-                        <div className="flex items-center ps-3">
-                            <input id="list-radio-id" type="radio" value="" name="list-radio" className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"/>
-                            <label htmlFor="list-radio-id" className="w-full py-3 select-none ms-2 text-sm font-medium text-heading">False</label>
-                        </div>
+                      <div className="flex items-center ps-3">
+                        <input
+                          id="list-radio-false"
+                          type="radio"
+                          value="false"
+                          name="list-radio"
+                          checked={selectedValue === "false"}
+                          onChange={(e) => setSelectedValue(e.target.value)}
+                          className="w-4 h-4 checked:bg-blue-500 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
+                        />
+                        <label
+                          htmlFor="list-radio-false"
+                          className="w-full py-3 select-none ms-2 text-sm font-medium text-heading"
+                        >
+                          False
+                        </label>
+                      </div>
                     </li>
                   </ul>
                 </div>
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
-              <button type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
-                Add Testcase
+              <button type='submit' onClick={() => classifyBug()} className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+                Change Classification
               </button>
             </div>
           </div>
@@ -252,7 +317,7 @@ const addComment = async () => {
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder='Status'
+                    placeholder='passed or failed'
                     value={testcaseStatus}
                     onChange={(e) => setTestcaseStatus(e.target.value)}
                   />
@@ -274,7 +339,7 @@ const addComment = async () => {
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
-              <button type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+              <button onClick={() => addTestcase()} type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
                 Add Testcase
               </button>
             </div>
@@ -317,39 +382,19 @@ const addComment = async () => {
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
                     placeholder='Hours'
-                    value={logHours}
-                    onChange={(e) => setLogHours(e.target.value)}
+                    value={loggedHours}
+                    onChange={(e) => setLoggedHours(e.target.value)}
                   />
                 </div>
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
-              <button type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+              <button onClick={() => logHours()} type='submit' className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
                 Log Hours
               </button>
             </div>
           </div>
-          <hr />
-          <div className="w-full p-4 text-right text-gray-500">
-            <button className=" inline-flex items-center focus:outline-none mr-4 text-gray-800">
-              <svg
-                fill="none"
-                className="w-4 mr-2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-              Delete account
-            </button>
-          </div>
         </div>
-      </form>
       </div>
     </section>
     </>

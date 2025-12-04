@@ -86,6 +86,8 @@ function Dashboard() {
                                 <th className="text-left">User Name</th>
                                 <th className="text-left">Email</th>
                                 <th className="text-left">Role</th>
+                                <th className="text-left">Assigned Bugs</th>
+                                <th className="text-left">created Bugs</th>                                
                             </tr>
                         </thead>
 
@@ -95,6 +97,8 @@ function Dashboard() {
                                     <td>{user.name ? user.name : `${user.givenName} ${user.familyName}`}</td>
                                     <td>{user.email}</td>
                                     <td>{user.role?.join(', ')}</td>
+                                    <td>{user.assignedBugs.length}</td>
+                                    <td>{user.createdBugs.length}</td>
                                 </tr>
                             ))}
                         </tbody>

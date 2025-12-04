@@ -168,7 +168,14 @@ async function saveAuditLog(log){
   const dbResult = await db.collection('AuditLog').insertOne(log);
   return dbResult;
 }
-export { newId, connect, ping, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, getClient, saveAuditLog };
+
+async function updateBugWorkLog(bugId, workLogEntry){
+  const db = await connect();
+  const result = await db.collection('bugs').updateOne({_id: bugId}, {$push: {workLog: workLogEntry}});
+  return result;
+}
+
+export { newId, connect, ping, updateBugWorkLog, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, getClient, saveAuditLog };
 
 // test the database connection
 

@@ -3,7 +3,7 @@ const router = express.Router();
 import joi from 'joi';
 import debug from 'debug';
 const debugBug = debug('app:BugRouter');
-import { getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, saveAuditLog } from '../../database.js';
+import { getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, saveAuditLog, updateBugWorkLog } from '../../database.js';
 import { createBugSchema, updateSchema, classifySchema, assignSchema, closeSchema, createCommentSchema, createTestSchema, updateTestSchema } from '../../validation/bugSchema.js'
 import { validate } from '../../middleware/joiValidator.js'
 import { validId } from '../../middleware/validId.js'
@@ -90,6 +90,7 @@ router.post('/new', isAuthenticated, validate(createBugSchema), hasAnyPermission
     newBug.createdOn = new Date()
     newBug.comments = []
     newBug.testcase = []
+    newBug.workLog = []
     newBug.closed = false;
     newBug.classification = "unclassified";
     newBug.createdBy = req.user.email
@@ -299,7 +300,7 @@ router.post('/:bugId/comments', isAuthenticated, validId('bugId'), validate(crea
 try {
     const newComment = req.body;
     const bugId = req.bugId
-    newComment.author = req.user.name
+    newComment.author = req.user.name || req.user.email
     newComment.authorId = req.user.id
     newComment.createdAt = new Date()
     
@@ -414,6 +415,7 @@ try {
 
 router.delete('/:bugId/tests/:testId', isAuthenticated, validId('bugId'), validId('testId'), hasAnyPermissions(['canDeleteTestCase']), async (req,res) => {  //delete testcase
   try {
+  debugBug('Delete testcase endpoint called');
   const bugId = req.bugId;
   const testId = req.testId;
   const results = await deleteTestCase(bugId, testId);
@@ -436,6 +438,25 @@ router.delete('/:bugId/tests/:testId', isAuthenticated, validId('bugId'), validI
   res.status(500).send('Server Error')
  }
 })
+
+//Work log 
+
+router.patch('/:bugId/worklog', isAuthenticated, validId('bugId'), hasAnyPermissions(['canEditAnyBug']), async (req,res) => {
+  try {
+  const bugId = req.bugId;
+  const workLogEntry = req.body;
+  workLogEntry.entryDate = new Date();
+  workLogEntry.enteredBy = req.user.id;
+  const result = await updateBugWorkLog(bugId, workLogEntry);
+  if (result.modifiedCount === 1) {
+    res.status(200).json({ message: `Bug ${bugId} work log updated!`, bugId })
+  } else {
+    res.status(404).json({error: 'Bug not found'})
+  }}
+  catch (err) {
+    res.status(500).send('Server Error')
+  }
+});
 
 
 export { router as BugRouter }
