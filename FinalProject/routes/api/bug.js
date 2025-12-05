@@ -118,7 +118,7 @@ router.post('/new', isAuthenticated, validate(createBugSchema), hasAnyPermission
 });
 //^ Working with validate 03-02
 
-router.patch('/:bugId', isAuthenticated, validId('bugId'), hasAnyPermissions(['canEditAnyBug','canEditMyBug','canEditIfAssignedTo']), async (req,res) => {
+router.patch('/:bugId', isAuthenticated, validId('bugId'), hasAnyPermissions(['canEditAnyBug']), async (req,res) => {
   try {
   const bugId = req.bugId;
   const bug = await getBugById(bugId);

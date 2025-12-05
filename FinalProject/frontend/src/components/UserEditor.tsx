@@ -2,7 +2,7 @@
 import { useNavigate  } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import React, { useState,  } from 'react';
-import axios from 'axios';
+import api from '../api';
 import userEditSchema from '../schemas/userEditSchema';
 import { z } from "zod";
 
@@ -31,10 +31,6 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
     );
   };
 
-
-
-
-
   const roles = [
   'Developer',
   'Business Analyst',
@@ -62,7 +58,7 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
     try {
       const validatedData = userEditSchema.parse(formData);
       // const validData = JSON.stringify(validatedData)
-      await axios.patch(`/api/user/${userId}`, validatedData);
+      await api.patch(`/api/user/${userId}`, validatedData);
       showSuccess("User updated successfully");
       navigate('/UserList');
     } catch (err) {

@@ -49,10 +49,10 @@ router.get('', isAuthenticated, hasAnyPermissions(['canViewData']), async (req, 
 
     const users = await getUsers(filter, sort, limitNum, skip);
     if (!users){
-    return res.status(500).send('Error retrieving users')
-  }else {
-  res.status(200).json(users);
-  }
+      return res.status(500).send('Error retrieving users')
+    }else {
+      res.status(200).json(users);
+    }
   }
   catch (err) {
     return res.status(500).send('Error')
@@ -62,39 +62,38 @@ router.get('', isAuthenticated, hasAnyPermissions(['canViewData']), async (req, 
 //^ working with 04-02
 
 router.get('/me', isAuthenticated, async (req,res) => {
-try {
-  res.status(200).json({
-    message: "Current User",
-    userId: req.user.id,
-    email: req.user.email,
-    givenName: req.user.givenName,
-    familyName: req.user.familyName,
-    Roles: req.user.role
-  })
-} catch (err) {
-  res.status(401).json({error: "server error"})
-}
+  try {
+    res.status(200).json({
+      message: "Current User",
+      userId: req.user.id,
+      email: req.user.email,
+      givenName: req.user.givenName,
+      familyName: req.user.familyName,
+      Roles: req.user.role
+    })
+  } catch (err) {
+    res.status(401).json({error: "server error"})
+  }
 })
 
 router.get('/:userId', isAuthenticated, validId('userId'), hasAnyPermissions(['canViewData']), async (req, res) => {
- try {
-  const userId = req.userId
-  const user = await getOneUser(userId)
   try {
-  
-  if (!user){
-    res.status(400).json({error: 'User Not Found'})
-  } else {
-    res.status(200).json(user);
+    const userId = req.userId
+    const user = await getOneUser(userId)
+    try {
+      if (!user){
+        res.status(400).json({error: 'User Not Found'})
+      } else {
+        res.status(200).json(user);
+      }
+    }
+    catch(err) {
+      res.status(404).json({error: `userId ${userId} is not a valid ObjectId.`});
+    }
   }
-}
-  catch(err) {
-    res.status(404).json({error: `userId ${userId} is not a valid ObjectId.`});
+  catch (err) {
+    res.status(500).send('Server Error')
   }
-}
-catch (err) {
-  res.status(500).send('Server Error')
-}
 })
 //^ Working with 04-02
 
@@ -106,7 +105,6 @@ router.patch('/me', isAuthenticated, async (req, res) => {
 
     const userId = req.user.id;
     const correctId = new ObjectId(userId)
-    console.log(correctId);
 
     const user = await getOneUser(correctId);
     if (!user) {
@@ -133,10 +131,18 @@ router.patch('/me', isAuthenticated, async (req, res) => {
 
 router.post('/register', validate(registerSchema), async (req, res) => {
   try {
-  const newUser = req.body;
-  if (await getUserByEmail(newUser.email)) {
-    return res.status(400).json({ message: 'Email already in use' });
-  }
+    const newUser = req.body;
+    // Normalize role titles to lowercase before saving
+    if (newUser && newUser.role) {
+      if (Array.isArray(newUser.role)) {
+        newUser.role = newUser.role.map(r => (typeof r === 'string' ? r.toLowerCase() : r));
+      } else if (typeof newUser.role === 'string') {
+        newUser.role = newUser.role.toLowerCase();
+      }
+    }
+    if (await getUserByEmail(newUser.email)) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
     const today = new Date();
     newUser.createdAt = today;
     newUser.password = await bcrypt.hash(newUser.password, 10);
@@ -146,7 +152,7 @@ router.post('/register', validate(registerSchema), async (req, res) => {
     } else {
       res.status(500).send('Error adding user');
     }
-} catch (err) {
+  } catch (err) {
     res.status(500).json({error: 'server error'})
   }
 });
@@ -154,45 +160,51 @@ router.post('/register', validate(registerSchema), async (req, res) => {
 
 router.post('/login', validate(loginSchema), async (req,res) => {
   try {
-  const {email, password} = req.body;
-  let existingUser = null;
-  try {
-    existingUser = await getUserByEmail(email);
-  }catch(err){
-    debugUser(`Error fetching user by email: ${err}`)
-  }
+    const {email, password} = req.body;
+    let existingUser = null;
+    try {
+      existingUser = await getUserByEmail(email);
+    }catch(err){
+      debugUser(`Error fetching user by email: ${err}`)
+    }
     if (existingUser && await bcrypt.compare(password, existingUser.password)){
-    res.status(200).json({message: 'Welcome In', user: existingUser})
-  }else if (existingUser && existingUser.password == password){
-    res.status(200).json({message: 'Welcome In', user: existingUser})
-  }
-  else {
-    res.status(401).json({message: 'Invalid email or password'})
-  }
+      res.status(200).json({message: 'Welcome In', user: existingUser})
+    }else if (existingUser && existingUser.password == password){
+      res.status(200).json({message: 'Welcome In', user: existingUser})
+    }
+    else {
+      res.status(401).json({message: 'Invalid email or password'})
+    }
   } catch (err) {
     res.status(500).json({error: 'server error'})
   }
-
-  
 })
 //^ Working with validate 03-02
 
 router.patch('/:userId', isAuthenticated, validId('userId'), hasAnyPermissions(['canEditAnyUser']), async (req,res) => {
   try {
-  const userId = req.userId;
-  const user = await getOneUser(userId);
+    const userId = req.userId;
+    const user = await getOneUser(userId);
     if (!user) {
       return res.status(404).json({ error: `userId ${userId} is not a valid ObjectId.` });
     }
     const updatedData = req.body;
-  updatedData.lastUpdated = new Date();
-  const result = await updateUser(userId, updatedData)
-  if (result.modifiedCount === 1) {
-    res.status(200).json({message: 'User updated successfully'})
-  } else {
-    res.status(404).json({message: 'User not found'})
+    // Normalize role titles to lowercase if role is included in update
+    if (updatedData && updatedData.role) {
+      if (Array.isArray(updatedData.role)) {
+        updatedData.role = updatedData.role.map(r => (typeof r === 'string' ? r.toLowerCase() : r));
+      } else if (typeof updatedData.role === 'string') {
+        updatedData.role = updatedData.role.toLowerCase();
+      }
+    }
+    updatedData.lastUpdated = new Date();
+    const result = await updateUser(userId, updatedData)
+    if (result.modifiedCount === 1) {
+      res.status(200).json({message: 'User updated successfully'})
+    } else {
+      res.status(404).json({message: 'User not found'})
+    }
   }
-}
   catch(err){
     res.status(500).send('Server Error')
   }
@@ -200,25 +212,25 @@ router.patch('/:userId', isAuthenticated, validId('userId'), hasAnyPermissions([
 //^ Working with validate 03-02
 
 router.delete('/:userId', isAuthenticated, validId('userId'), hasAnyPermissions(['canEditAnyUser']), async (req,res) => {
- try { 
-  const userId = req.userId;
-  try{
-  
-  const user = await getOneUser(userId);
-  const results = await deleteUser(userId);
-  if (results.deletedCount === 1){
-    res.status(200).json({message: 'User deleted successfully'});
-  } else {
-    res.status(404).json({message: 'User not found'})
+  try { 
+    const userId = req.userId;
+    try{
+      const user = await getOneUser(userId);
+      const results = await deleteUser(userId);
+      if (results.deletedCount === 1){
+        res.status(200).json({message: 'User deleted successfully'});
+      } else {
+        res.status(404).json({message: 'User not found'})
+      }
+    }
+    catch (err){
+      return res.status(404).json({ error: `userId ${userId} is not a valid ObjectId.` }); }
   }
- }
-catch (err){
-  return res.status(404).json({ error: `userId ${userId} is not a valid ObjectId.` });
- }}
- catch(err){
-  res.status(500).send('Server Error')
- }
+  catch(err){
+    res.status(500).send('Server Error')
+  }
 });
 //^ Working with validate 03-02
+
 
 export { router as userRouter }

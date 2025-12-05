@@ -16,6 +16,7 @@ function onClickLogout() {
   onLogout();
 }
 
+
   return( 
     <div className="bg-gray-100 font-sans w-full  m-0">
         <div className="bg-white shadow">
@@ -45,7 +46,7 @@ function onClickLogout() {
                 </div>
 
                 <div className="hidden sm:flex sm:items-center">
-                    <Link to="/UserEditor" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">My Account</Link>
+                    <Link to="/#"  className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">My Account</Link>
                     <Link to='#' className="text-gray-800 text-sm font-semibold border px-4 py-2 rounded-lg hover:text-purple-600 hover:border-purple-600" onClick={onClickLogout}>Log Out</Link>
                 </div>
             </>
@@ -74,7 +75,7 @@ function onClickLogout() {
                 <Link to="/BugList" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Bugs</Link>
                 <Link to="/UserList" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Users</Link>
             <div className="flex justify-between items-center border-t-2 pt-2">
-                <Link to="#" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">My Account</Link>
+                <Link to="/"  className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">My Account</Link>
                 <Link to="/" className="text-gray-800 text-sm font-semibold border px-4 py-1 rounded-lg hover:text-purple-600 hover:border-purple-600"  onClick={onClickLogout}>Log Out</Link>
             </div>
             </div>

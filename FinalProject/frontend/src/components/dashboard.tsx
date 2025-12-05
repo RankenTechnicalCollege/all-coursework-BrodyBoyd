@@ -15,7 +15,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchInfo = async () => {
       const bugResoponse = await fetch('/api/bug');
-      const userResponse = await fetch('/api/user');
+      const userResponse = await fetch('/api/user?limit=100000');
     if (!bugResoponse.ok) throw new Error('Failed to fetch bugs');
     if (!userResponse.ok) throw new Error('Failed to fetch bugs');
     const bugs = await bugResoponse.json();
@@ -83,23 +83,22 @@ function Dashboard() {
                     <table className="w-full">
                         <thead className="bg-gray-100 rounded-sm">
                             <tr>
-                                <th className="text-left">User Name</th>
-                                <th className="text-left">Email</th>
-                                <th className="text-left">Role</th>
-                                <th className="text-left">Assigned Bugs</th>
-                                <th className="text-left">created Bugs</th>                                
+                            <th className="text-left px-6">User Name</th>
+                            <th className="text-left px-6">Email</th>
+                            <th className="text-left px-6">Role</th>
+                            <th className="text-left px-6">Assigned Bugs</th>
+                            <th className="text-left px-6">Created Bugs</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             {users.map((user: any) => (
-                                <tr key={user._id} className="border-b  hover:bg-gray-100 p-4">
-                                    <td>{user.name ? user.name : `${user.givenName} ${user.familyName}`}</td>
-                                    <td>{user.email}</td>
-                                    <td>{user.role?.join(', ')}</td>
-                                    <td>{user.assignedBugs.length}</td>
-                                    <td>{user.createdBugs.length}</td>
-                                </tr>
+                            <tr key={user._id} className="border-b hover:bg-gray-100">
+                                <td className="px-6">{user.name ? user.name : `${user.givenName} ${user.familyName}`}</td>
+                                <td className="px-6">{user.email}</td>
+                                <td className="px-6">{user.role?.join(', ')}</td>
+                                <td className="px-6">{user.assignedBugs.length}</td>
+                                <td className="px-6">{user.createdBugs.length}</td>
+                            </tr>
                             ))}
                         </tbody>
                     </table>

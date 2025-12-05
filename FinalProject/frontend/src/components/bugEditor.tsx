@@ -1,10 +1,9 @@
-
 import { useNavigate  } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import bugEditSchema from '../schemas/bugEditSchema'
 import {z} from 'zod';
-import axios from 'axios';
+import api from '../api';
 
 // type Bug = {
 // 	title: string,
@@ -63,7 +62,7 @@ const handleSubmit = async () => {
     if (bugDescription !== '') updatedData.description = bugDescription;
     if (stepsToReproduce !== '') updatedData.stepsToReproduce = stepsToReproduce;
     const validatedData = bugEditSchema.parse(updatedData);
-    await axios.patch(`/api/bug/${bugId}`, validatedData);
+    await api.patch(`/api/bug/${bugId}`, validatedData);
     showSuccess("Bug updated successfully");
     
   } catch (err) {
@@ -85,7 +84,7 @@ const handleSubmit = async () => {
 const addComment = async () => {
   try {
     const text = commentText;
-    await axios.post(`/api/bug/${bugId}/comments`, { text });
+    await api.post(`/api/bug/${bugId}/comments`, { text });
     navigate('/BugList');
     window.location.reload();
   } catch (error) {
@@ -97,7 +96,7 @@ const addComment = async () => {
 const logHours = async () => {
   try {
     const time = Number(loggedHours);
-    await axios.patch(`/api/bug/${bugId}/worklog`, { time });
+    await api.patch(`/api/bug/${bugId}/worklog`, { time });
     navigate('/BugList');
     window.location.reload();
   } catch (error) {
@@ -109,7 +108,7 @@ const logHours = async () => {
 const addTestcase = async () => {
   try {
     const data = {title: testCaseTitle, status: testcaseStatus, description: testcaseDescription};
-    await axios.post(`/api/bug/${bugId}/tests`, data);
+    await api.post(`/api/bug/${bugId}/tests`, data);
     navigate('/BugList');
     window.location.reload();
   } catch (error) {
@@ -122,8 +121,8 @@ const classifyBug = async () => {
   try {
     const data = {classification: classification};
     const closed = selectedValue === "true" ? true : false;
-    await axios.patch(`/api/bug/${bugId}/classify`, data);
-    await axios.patch(`/api/bug/${bugId}`, {closed: closed});
+    await api.patch(`/api/bug/${bugId}/classify`, data);
+    await api.patch(`/api/bug/${bugId}`, {closed: closed});
     navigate('/BugList');
     window.location.reload();
   } catch (error) {
