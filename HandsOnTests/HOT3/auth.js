@@ -20,7 +20,7 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type:"object",
-        required: true
+        required: false
       },
       fullName: {
         type:"string",

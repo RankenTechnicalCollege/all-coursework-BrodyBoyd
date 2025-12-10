@@ -11,7 +11,7 @@ import { validate } from '../../middleware/joiValidater.js';
 import {updateUserSchema} from '../../validation/userSchema.js'
 import { hasRole } from '../../middleware/hasRole.js';
 
-router.get('/', isAuthenticated, hasRole('admin'), async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const {keywords, role, minAge, maxAge, page, limit, sortBy} = req.query;
 
