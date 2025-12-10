@@ -1,9 +1,10 @@
 import {z} from "zod";
 
 const bugEditSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  stepsToReproduce: z.string().optional()
+  title: z.string(),
+  bugDescription: z.string(),
+  stepsToReproduce: z.string()
 })
+  
 
 export default bugEditSchema

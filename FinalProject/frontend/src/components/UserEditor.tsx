@@ -1,7 +1,7 @@
 
 import { useNavigate  } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import React, { useState,  } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../api';
 import userEditSchema from '../schemas/userEditSchema';
 import { z } from "zod";
@@ -32,18 +32,32 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
   };
 
   const roles = [
-  'Developer',
-  'Business Analyst',
-  'Quality Analyst',
-  'Product Manager',
-  'Technical Manager',
-  'Admin'
-];
+    { value: 'developer', label: 'Developer' },
+    { value: 'business analyst', label: 'Business Analyst' },
+    { value: 'quality analyst', label: 'Quality Analyst' },
+    { value: 'product manager', label: 'Product Manager' },
+    { value: 'technical manager', label: 'Technical Manager' },
+    { value: 'admin', label: 'Admin' }
+  ];
 
 
 	const location = useLocation();
   const user = (location.state as { user: any }).user;
   const userId = user._id;
+
+  useEffect(() => {
+    if (user) {
+      if (user.email) setEmail(user.email);
+      if (user.name) setName(user.name);
+      if (user.role) {
+        if (Array.isArray(user.role)) {
+          setSelectedRoles(user.role.map((r: any) => (typeof r === 'string' ? r.toLowerCase() : r)));
+        } else if (typeof user.role === 'string') {
+          setSelectedRoles([user.role.toLowerCase()]);
+        }
+      }
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +108,7 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
           <div className="max-w-sm mx-auto md:w-full md:mx-0">
             <div className="inline-flex items-center space-x-4">
             
-              <h1 className="text-gray-800">{user.name}</h1>
+              <h1 className="text-gray-800">{name || user.name}</h1>
             </div>
           </div>
         </div>
@@ -123,7 +137,7 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
                 <input
                   type="email"
                   className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                  placeholder={user.email}
+                  // placeholder={user.email}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -161,7 +175,7 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={user.name}
+                    // placeholder={user.name}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -197,11 +211,11 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
                         className="checkbox__input"
                         type="checkbox"
                         name={`role-${index}`}
-                        value={role}
-                        checked={selectedRoles.includes(role)}
-                        onChange={() => handleCheckboxChange(role)}
+                        value={role.value}
+                        checked={selectedRoles.includes(role.value)}
+                        onChange={() => handleCheckboxChange(role.value)}
                       />
-                      <span className="checkbox__label">{role}</span>
+                      <span className="checkbox__label">{role.label}</span>
                     </label>
                   ))}
 

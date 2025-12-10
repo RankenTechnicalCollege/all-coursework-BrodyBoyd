@@ -1,151 +1,75 @@
 import { Link } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
-import axios from 'axios';
+// import { Trash2 } from 'lucide-react';
+// import axios from 'axios';
 
 function BugListItem({ bug }: any ) {
   const currentBug = bug;
-	const bugId = bug._id;
 	
-	const fixedStatus = bug.closed ? 'True' : 'False';
-
-	const deleteTestcase = async (testcaseId: any) => {
-		try {
-			await axios.delete(`/api/bug/${bugId}/tests/${testcaseId}`);
-		} catch (error) {
-			console.error('Error deleting testcase:', error);
-		}
-		console.log('Delete testcase clicked');
-		window.location.reload();
-	}
+	const fixedStatus = bug.closed ? 'Closed' : 'Open';
 
   return (
     <>
-      <div className="w-full px-4 mx-auto col-span-1">
-					<div className="relative flex flex-col min-w-0 break-words bg-gray-950 w-full mb-6 shadow-xl rounded-lg mt-16">
-						<div className="px-6">
-							<div className="flex flex-wrap justify-center">
-								<div className="w-full px-4 flex justify-center">
-									<div className="relative">
-										<img alt="..." src="https://demos.creative-tim.com/notus-js/assets/img/team-2-800x800.jpg" className="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 max-w-150-px"/>
-									</div>
-								</div>
-							</div>
-							<div className="text-center mt-12">
-								<h3 className="text-4xl font-bold leading-normal text-gray-50 mb-2">
-									{bug.title}
-								</h3>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">{bug.createdBy}</i>
-								</div>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									Description: 
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">{bug.description}</i>
-								</div>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									Steps to Reproduce: 
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">{bug.stepsToReproduce}</i>
-								</div>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									Classification: 
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">{bug.classification}</i>
-								</div>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									creationDate: 
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">{bug.createdOn}</i>
-								</div>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400">Fixed: {fixedStatus}</i>
-								</div>
-								{/* impliment a (if true) then the fixed in version is here */}
-							</div>
-							<div className="mt-3 py-10 border-t border-blueGray-200 text-center">
-								<div className="flex flex-wrap justify-center">
-									<div className="w-full lg:w-11/12 px-4">
-										<div className='pb-4 border-4  border-indigo-300 mb-4'>
-											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
-												Comments
-											</p>
-											<p className='text-white'>
-												{Array.isArray(bug.comments) && bug.comments.length > 0 ? (
-													bug.comments.map((comment: any, idx: number) => (
-															<div key={comment._id || idx} className="border-b border-gray-600/80 pb-2">
-																<p className="font-semibold text-blue-200">{comment.author}</p>
-																<p className="italic">{comment.text}</p>
-																<p className="text-sm text-gray-400">
-																	{new Date(comment.createdAt).toLocaleString()}
-																</p>
-															</div>
-													))
-												) : (
-													<p className="text-gray-400">No comments available.</p>
-												)}
-											</p>
-										</div>
-										<div className=' pb-4 border-4  border-indigo-300 mb-4'>
-											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
-												TestCases
-											</p>
-											<p className='text-white'>
-												{Array.isArray(bug?.testcase) && bug.testcase.length > 0 ? (
-													bug.testcase.map((result: any, idx: number) => (
-														<div className='flex mb-2 text-white border-b border-gray-600/80 pb-2' key={idx}>
-															<p key={idx} className="text-white w-11/12">
-																{result.title}:{' '}
-																<span className={result.status === 'passed' ? 'text-green-400' : 'text-red-400'}>
-																	{result.status}
-																</span>
-																<p>{result.description}</p>
-															</p>
-															<div>
-																<button
-																	type="button"
-																	onClick={() => deleteTestcase(result._id)}
-																	aria-label={`Delete testcase ${result.title || ''}`}
-																	title="Delete testcase"
-																	className="p-1 rounded cursor-pointer hover:bg-red-600/10 focus:outline-none focus:ring-2 focus:ring-red-500"
-																>
-																	<Trash2 size={18} color="#FF0000" />
-																</button>
-															</div>
-															<hr/>
-														</div>
-													))
-												) : (
-													<p className="text-gray-400">No test cases available.</p>
-												)}
-											</p>
-										</div>
-										<div className='pb-4 border-4  border-indigo-300'>
-											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
-												Work Log
-											</p>
-											<p className='text-white'>
-												{Array.isArray(bug.workLog) && bug.workLog.length > 0 ? (
-													<div className="text-white space-y-1">
-														{bug.workLog.map((log: { time: string; entryDate: string; enteredBy: string }, idx: number) => (
-															<p key={idx}>
-																Entry {idx + 1}: {log.time} hours (entered on {new Date(log.entryDate).toLocaleDateString()})
-															</p>
-														))}
-														{/* <p className="mt-2 font-bold text-blue-300">
-															Total Hours: {bug.workLog((sum: number, log: { time: string }) => sum + Number(log.time), 0)}
-														</p> */}
-													</div>
-												) : (
-													<p className="text-gray-400">No work hours logged.</p>
-												)}
-												</p>
-											</div>
-										
-									</div>
-                  <div className='mt-4 hover:-translate-y-1 ease-in-out transition'>
-									<Link to='/BugEditor' state={{bug: currentBug}} ><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit Bug</span></Link>
-								</div>
-								</div>
-							</div>
-						</div>
+		<div className="w-full px-4 mx-auto col-span-1">
+					<div className="relative flex flex-col min-w-0 break-words bg-gray-300 w-full mb-6 shadow-xl rounded-lg mt-16 p-3">
+				<a href="#" className="relative inline-block duration-300 ease-in-out transition-transform transform hover:-translate-y-2 w-full">
+				<div className="shadow p-2 rounded-lg bg-white gap-3">
+				<div className="mt-4">
+					<h2 className="font-medium text-base md:text-lg text-gray-800 line-clamp-1" >
+						{bug.title}
+					</h2>
+					<p className="mt-2 text-sm text-gray-800 line-clamp-1" >
+					{bug.createdBy}
+					</p>
+					<p className="mt-2 text-sm text-gray-800 line-clamp-1">
+					{bug.description}
+					</p>
+					<p className="mt-2 text-sm text-gray-800 line-clamp-1">
+					{bug.stepsToReproduce}
+					</p>
+					<p className="mt-2 text-sm text-gray-800 line-clamp-1" >
+					{bug.classification}
+					</p>
+					<p className="mt-2 text-sm text-gray-800 line-clamp-1">
+					{new Date(bug.createdOn).toLocaleString()}
+					</p>
+				</div>
+
+				<div className="grid grid-cols-2 grid-rows-2 gap-4 mt-8 pl-2">
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+					<span className="mt-2 xl:mt-0">
+						Comments: {bug.comments ? bug.comments.length : 0}
+					</span>
+					</p>
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+					<span className="mt-2 xl:mt-0">
+						Total Testcases: {bug.testcase ? bug.testcase.length : 0}
+					</span>
+					</p>
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+					<span className="mt-2 xl:mt-0">
+						Total Worked Hours: {bug.workLog ? bug.workLog.reduce((sum: number, log: { time: string }) => sum + Number(log.time), 0) : 0}
+					</span>
+					</p>
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+					<span className="mt-2 xl:mt-0">
+						{fixedStatus}	
+					</span>
+					</p>
+					
+				</div>
+
+				<div className=" mt-8">
+					<div className="flex items-center">
+						<p>Assigned to: {bug.assignedTo ? bug.assignedTo : "No User Assigned"}</p>
+					<div className='mt-4 hover:-translate-y-1 ease-in-out transition pb-3 pl-2'>
+						<Link to='/BugEditor' state={{bug: currentBug}} ><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit Bug</span></Link>
+					</div>
 					</div>
 				</div>
+				</div>
+			</a>	
+			</div>
+			</div>
     </>
   )
 }

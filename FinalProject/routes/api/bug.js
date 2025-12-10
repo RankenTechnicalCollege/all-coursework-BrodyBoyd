@@ -40,17 +40,17 @@ router.get('', isAuthenticated, hasAnyPermissions(['canViewData']), async (req,r
       if (maxAge) {dateFilter.$gte = new Date(today.getTime() - maxAge * 24 * 60 * 60 * 1000); }
       if (minAge) {dateFilter.$lte = new Date(today.getTime() - minAge * 24 * 60 * 60 * 1000); }
 
-      filter.dateOfCreation = dateFilter;
+      filter.createdOn = dateFilter;
     }
     const sortOptions = {
-      title: {title: 1, dateOfCreation: -1},
-      newest: {dateOfCreation: -1},
-      oldest: {dateOfCreation: 1},
-      classification: {classification: 1, dateOfCreation: -1},
-      assignedTo: {assignedToUserName: 1, dateOfCreation: -1},
-      createdBy: {createdByUserId: 1, dateOfCreation: -1}
+      title: {title: 1, createdOn: -1},
+      newest: {createdOn: -1},
+      oldest: {createdOn: 1},
+      classification: {classification: 1, createdOn: -1},
+      assignedTo: {assignedToUserName: 1, createdOn: -1},
+      createdBy: {createdByUserId: 1, createdOn: -1}
     };
-    const sort = sortOptions[sortBy] || {dateOfCreation: -1}
+    const sort = sortOptions[sortBy] || {createdOn: -1}
     
     
     const bugs = await getBugs(filter, sort, limitNum, skip);
@@ -85,6 +85,7 @@ catch (err) {
 //^ Working with validate 03-02
 
 router.post('/new', isAuthenticated, validate(createBugSchema), hasAnyPermissions(['canCreateBug']), async (req,res) => {
+  debugBug('Create bug endpoint called');
   try {
   const newBug = req.body;
     newBug.createdOn = new Date()

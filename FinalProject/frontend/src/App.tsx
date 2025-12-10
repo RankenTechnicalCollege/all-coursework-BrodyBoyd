@@ -11,6 +11,7 @@ import './App.css'
 import { ToastContainer, toast} from 'react-toastify'
 import AppLayout from './layouts/appLayout.tsx';
 import Dashboard from './components/dashboard.tsx';
+import YourAccount from './components/YourAccount.tsx';
 function App() {
 
 	function showError(message: string) {
@@ -36,6 +37,7 @@ function App() {
 						<Route path="/Register" element={<Register />} />
 						<Route path="/UserEditor" element={<UserEditor  showError={showError} showSuccess={showSuccess} />} />
 						<Route path='/BugEditor' element={<BugEditor showError={showError} showSuccess={showSuccess}  />} />
+						<Route path='/YourAccount' element={<YourAccount showError={showError} showSuccess={showSuccess}  />} />
 					</Route>
 				</Routes>
 			</div>

@@ -51,6 +51,7 @@ router.get('', isAuthenticated, hasAnyPermissions(['canViewData']), async (req, 
     if (!users){
       return res.status(500).send('Error retrieving users')
     }else {
+      debugUser(`sorting by: ${JSON.stringify(sort)}`);
       res.status(200).json(users);
     }
   }
@@ -67,9 +68,10 @@ router.get('/me', isAuthenticated, async (req,res) => {
       message: "Current User",
       userId: req.user.id,
       email: req.user.email,
+      name: req.user.name,
       givenName: req.user.givenName,
       familyName: req.user.familyName,
-      Roles: req.user.role
+      role: req.user.role
     })
   } catch (err) {
     res.status(401).json({error: "server error"})
@@ -111,11 +113,16 @@ router.patch('/me', isAuthenticated, async (req, res) => {
       return res.status(404).json({ error: `User with ID ${userId} not found.` });
     }
 
-    const updatedData = {
-      ...req.body,
-      role: req.user.role,
-      lastUpdated: new Date()
-    };
+    const updatedData = req.body;
+    // Normalize role titles to lowercase if role is included in update
+    if (updatedData && updatedData.role) {
+      if (Array.isArray(updatedData.role)) {
+        updatedData.role = updatedData.role.map(r => (typeof r === 'string' ? r.toLowerCase() : r));
+      } else if (typeof updatedData.role === 'string') {
+        updatedData.role = updatedData.role.toLowerCase();
+      }
+    }
+    updatedData.lastUpdated = new Date();
 
     const result = await updateUser(correctId, updatedData);
     if (!result) {

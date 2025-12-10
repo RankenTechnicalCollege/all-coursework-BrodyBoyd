@@ -1,9 +1,10 @@
 import { useNavigate  } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import bugEditSchema from '../schemas/bugEditSchema'
 import {z} from 'zod';
 import api from '../api';
+import { Trash2 } from 'lucide-react';
 
 // type Bug = {
 // 	title: string,
@@ -22,7 +23,7 @@ import api from '../api';
 interface BugUpdate {
   authorEmail?: string;
   title?: string;
-  description?: string;
+  bugDescription?: string;
   stepsToReproduce?: string;
   classification?: string;
   fixedStatus?: boolean;
@@ -41,6 +42,8 @@ function BugEditor({ showError, showSuccess }: { showError: (message: string) =>
   const [loggedHours, setLoggedHours] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [selectedValue, setSelectedValue] = useState("");
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState("");
 
 
 
@@ -50,20 +53,46 @@ function BugEditor({ showError, showSuccess }: { showError: (message: string) =>
   const bug = (location.state as { bug: any }).bug;
   const bugId = bug._id
 
+  useEffect(() => {
+    if (bug) {
+      if (bug.title) setTitle(bug.title);
+      if (bug.description) setBugDescription(bug.description);
+      if (bug.stepsToReproduce) setStepsToReproduce(bug.stepsToReproduce);
+      if (bug.classification) setClassification(bug.classification);
+      if (typeof bug.closed !== 'undefined') setSelectedValue(bug.closed ? 'true' : 'false');
+    }
+    const fetchInfo = async () => {
+      const userResponse = await fetch('/api/user?limit=100000');
+    if (!userResponse.ok) throw new Error('Failed to fetch bugs');
+    const users = await userResponse.json();
+    setUsers(users)
+    }
+    fetchInfo();
+    }, [bug]);
+
+  const deleteTestcase = async (testcaseId: any) => {
+		try {
+			await api.delete(`/api/bug/${bugId}/tests/${testcaseId}`);
+		} catch (error) {
+			console.error('Error deleting testcase:', error);
+		}
+		console.log('Delete testcase clicked');
+		window.location.reload();
+	}
+
 
 
 const handleSubmit = async () => {
     const updatedData: BugUpdate = {};
 
   try {
-    
-    navigate('/BugList');
     if (title !== '') updatedData.title = title;
-    if (bugDescription !== '') updatedData.description = bugDescription;
+    if (bugDescription !== '') updatedData.bugDescription = bugDescription;
     if (stepsToReproduce !== '') updatedData.stepsToReproduce = stepsToReproduce;
     const validatedData = bugEditSchema.parse(updatedData);
     await api.patch(`/api/bug/${bugId}`, validatedData);
     showSuccess("Bug updated successfully");
+    navigate('/BugList');
     
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -83,6 +112,7 @@ const handleSubmit = async () => {
 
 const addComment = async () => {
   try {
+    console.log(selectedUser)
     const text = commentText;
     await api.post(`/api/bug/${bugId}/comments`, { text });
     navigate('/BugList');
@@ -142,7 +172,7 @@ const classifyBug = async () => {
           </div>
         </div>
         <div className="bg-white space-y-6">  
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div className="md:inline-flex  space-y-4 md:space-y-0  w-full p-4 text-gray-500 items-center">
             <h2 className="md:w-1/3 mx-auto max-w-sm text-gray-800">Bug Info</h2>
             <div className="md:w-2/3 mx-auto max-w-sm space-y-5">
@@ -154,7 +184,7 @@ const classifyBug = async () => {
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={bug.title}
+                    // placeholder={bug.title}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -171,7 +201,7 @@ const classifyBug = async () => {
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={bug.description}
+                    // placeholder={bug.description}
                     value={bugDescription}
                     onChange={(e) => setBugDescription(e.target.value)}
                   />
@@ -188,7 +218,7 @@ const classifyBug = async () => {
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={bug.stepsToReproduce}
+                    // placeholder={bug.stepsToReproduce}
                     value={stepsToReproduce}
                     onChange={(e) => setStepsToReproduce(e.target.value)}
                   />
@@ -220,6 +250,28 @@ const classifyBug = async () => {
           </div>
           </form>
           <hr/>
+          
+    <div className="md:inline-flex w-full space-y-4 md:space-y-0 p-8 text-gray-500 items-center">
+            <h2 className="md:w-4/12 max-w-sm mx-auto text-gray-800">Assign to user</h2>
+            <div className="md:w-2/3 mx-auto max-w-sm space-y-5">
+            <div className="relative inline-flex">
+            <svg className="w-2 h-2 absolute top-0 right-0 m-4 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 412 232"><path d="M206 171.144L42.678 7.822c-9.763-9.763-25.592-9.763-35.355 0-9.763 9.764-9.763 25.592 0 35.355l181 181c4.88 4.882 11.279 7.323 17.677 7.323s12.796-2.441 17.678-7.322l181-181c9.763-9.764 9.763-25.592 0-35.355-9.763-9.763-25.592-9.763-35.355 0L206 171.144z" fill="#648299" fill-rule="nonzero"/></svg>
+            <select onChange={(e) => (setSelectedUser(e.target.value))} className="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none">
+              <option>Choose a user</option>
+              {users.map((user) => (
+                <option key={user._id} value={user._id} >{user.name} ({user.email})</option>
+              ))}
+              
+            </select>
+          </div>
+            </div>
+            <div className="md:w-3/12 text-center md:pl-6">
+              <button type='submit' onClick={() => classifyBug()} className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+                Assign
+              </button>
+            </div>
+          </div>
+          <hr/>
           <div className="md:inline-flex w-full space-y-4 md:space-y-0 p-8 text-gray-500 items-center">
             <h2 className="md:w-4/12 max-w-sm mx-auto text-gray-800">Classification</h2>
             <div className="md:w-2/3 mx-auto max-w-sm space-y-5">
@@ -231,7 +283,7 @@ const classifyBug = async () => {
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    placeholder={bug.classification}
+                    // placeholder={bug.classification}
                     value={classification}
                     onChange={(e) => setClassification(e.target.value)}
                   />
@@ -290,6 +342,33 @@ const classifyBug = async () => {
             </div>
           </div>
           <hr/>
+          {Array.isArray(bug?.testcase) && bug.testcase.length > 0 ? (
+              bug.testcase.map((result: any, idx: number) => (
+                <div className="space-y-4 max-w-11/12 " key={idx}>
+                  <div className="flex">
+                    <div className="flex-1 border rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
+                      <strong>{result.title}:{' '}</strong> <span className={result.status === 'passed text-xs' ? 'text-green-400 text-xs' : 'text-red-400 text-xs' }>
+                      {result.status}
+                    </span>
+                      <p className="text-sm">
+                        {result.description}
+                      </p>
+                      <button
+                      type="button"
+                      onClick={() => deleteTestcase(result._id)}
+                      aria-label={`Delete testcase ${result.title || ''}`}
+                      title="Delete testcase"
+                      className="p-1 rounded cursor-pointer hover:bg-red-600/10 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    >
+                      <Trash2 size={18} color="#FF0000" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              ))
+            ) : (
+              <p className="text-gray-400">No test cases available.</p>
+            )}
           <div className="md:inline-flex w-full space-y-4 md:space-y-0 p-8 text-gray-500 items-center">
             <h2 className="md:w-4/12 max-w-sm mx-auto text-gray-800">Create Testcase</h2>
             <div className="md:w-2/3 mx-auto max-w-sm space-y-5">
@@ -344,6 +423,25 @@ const classifyBug = async () => {
             </div>
           </div>
           <hr />
+          <h1 className='pl-5'>Comments:</h1>
+          <div className='items-center'>
+          {Array.isArray(bug.comments) && bug.comments.length > 0 ? (
+            bug.comments.map((comment: any, idx: number) => (
+                <div className="space-y-4 max-w-11/12 " key={comment._id || idx}>
+                  <div className="flex">
+                    <div className="flex-1 border rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
+                      <strong>{comment.author}</strong> <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleString()}</span>
+                      <p className="text-sm">
+                        {comment.text}
+                      </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400">No comments available.</p>
+          )}
+          </div>
           <div className="md:inline-flex w-full space-y-4 md:space-y-0 p-8 text-gray-500 items-center">
             <h2 className="md:w-4/12 max-w-sm mx-auto text-gray-800">Create Comment</h2>
             <div className="md:w-2/3 mx-auto max-w-sm space-y-5">

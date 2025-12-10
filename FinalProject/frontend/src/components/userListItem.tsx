@@ -6,74 +6,74 @@ function UserListItem({user}: any ) {
 	const currentUser = user;
   return (
     <>
-				<div className="w-full px-4 mx-auto col-span-1">
-					<div className="relative flex flex-col min-w-0 break-words bg-gray-950 w-full mb-6 shadow-xl rounded-lg mt-16">
-						<div className="px-6">
-							<div className="flex flex-wrap justify-center">
-								<div className="w-full px-4 flex justify-center">
-									<div className="relative">
-										<img alt="..." src="https://demos.creative-tim.com/notus-js/assets/img/team-2-800x800.jpg" className="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 max-w-150-px"/>
+			<a href="#" className="relative inline-block duration-300 ease-in-out transition-transform transform hover:-translate-y-2 w-full">
+				<div className="shadow p-4 rounded-lg bg-white">
+				<div className="mt-4">
+					<h2 className="font-medium text-base md:text-lg text-gray-800 line-clamp-1" title="New York">
+					{user.name}
+					</h2>
+					<p className="mt-2 text-sm text-gray-800 line-clamp-1" title="New York, NY 10004, United States">
+					{user.email}
+					</p>
+					<p className="mt-2 text-sm text-gray-800 line-clamp-1" title="New York, NY 10004, United States">
+						<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.role?.join(', ')}</i>
+					</p>
+				</div>
+
+				<div className="grid grid-cols-2 grid-rows-2 gap-4 mt-8">
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+					<span className="mt-2 xl:mt-0">
+						created Bugs: {user.createdBugs ? user.createdBugs.length : 0}
+					</span>
+					</p>
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+					<span className="mt-2 xl:mt-0">
+						assigned Bugs: {user.assignedBugs ? user.assignedBugs.length : 0}
+					</span>
+					</p>
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+						<span className="mt-2 xl:mt-0">
+						<p className='text-white'>
+							{Array.isArray(user.createdBugs) && user.createdBugs.length > 0 ? (
+								user.createdBugs.map((bug: any, idx: number) => (
+									<div key={bug._id || idx} className="mb-2 text-white">
+										<p className="font-semibold text-blue-200">{bug.title}</p>
+										<p className="italic">{bug.status}</p>
 									</div>
-								</div>
-							</div>
-							<div className="text-center mt-12">
-								<h3 className="text-xl font-semibold leading-normal text-gray-50 mb-2">
-									{user.name}
-								</h3>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.role?.join(', ')}
-</i>
-								</div>
-								<div className="text-sm leading-normal mt-0 mb-2 text-gray-50 font-bold uppercase">
-									<i className="fas fa-map-marker-alt mr-2 text-lg text-gray-50">{user.email}</i>
-								</div>
-							</div>
-							<div className="mt-3 py-10 border-t border-blueGray-200 text-center">
-								<div className="flex flex-wrap justify-center">
-									<div className="w-full lg:w-11/12 px-4">
-										<div className=' pb-4 border-4  border-indigo-300 mb-4'>
-											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
-												Assigned Bugs
-											</p>
-											<p className='text-white'>{Array.isArray(user.assignedBugs) && user.assignedBugs.length > 0 ? (
-													user.assignedBugs.map((bug: any, idx: number) => (
-														<div key={bug._id || idx} className="mb-2 text-white">
-															<p className="font-semibold text-blue-200">{bug.title}</p>
-															<p className="italic">{bug.status}</p>
-														</div>
-													))
-												) : (
-													<p className="text-gray-400">No bugs assigned.</p>
-												)}</p>
-										</div>
-										<div className='pb-4 border-4  border-indigo-300'>
-											<p className="mb-4 text-2xl font-bold leading-relaxed text-blue-100 ">
-												Created Bugs
-											</p>
-											<p className='text-white'>{Array.isArray(user.createdBugs) && user.createdBugs.length > 0 ? (
-													user.createdBugs.map((bug: any, idx: number) => (
-														<div key={bug._id || idx} className="mb-2 text-white">
-															<p className="font-semibold text-blue-200">{bug.title}</p>
-															<p className="italic">{bug.status}</p>
-														</div>
-													))
-												) : (
-													<p className="text-gray-400">No bugs Created.</p>
-												)}</p>
-										</div>
-										
-									</div> 
-									
-									<div className='mt-4 hover:-translate-y-1 ease-in-out transition'>
-										<Link to='/UserEditor' state={{user: currentUser}}><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit User</span></Link>
+								))
+							) : (
+								<p className="text-gray-400">No bugs Created.</p>
+							)}
+						</p>
+					</span>
+					</p>
+					<p className="inline-flex flex-col xl:flex-row xl:items-center text-gray-800">
+					<span className="mt-2 xl:mt-0">
+						<p className='text-white'>
+							{Array.isArray(user.assignedBugs) && user.assignedBugs.length > 0 ? (
+								user.assignedBugs.map((bug: any, idx: number) => (
+									<div key={bug._id || idx} className="mb-2 text-white">
+										<p className="font-semibold text-blue-200">{bug.title}</p>
+										<p className="italic">{bug.status}</p>
 									</div>
-								</div>
-								
-							</div>
-						</div>
+								))
+							) : (
+								<p className="text-gray-400">No bugs assigned.</p>
+							)}
+						</p>
+					</span>
+					</p>
+				</div>
+
+				<div className="grid grid-cols-2 mt-8">
+					<div className="flex items-center">
+					<div className='mt-4 hover:-translate-y-1 ease-in-out transition'>
+						<Link to='/UserEditor' state={{user: currentUser}}><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit User</span></Link>
+					</div>
 					</div>
 				</div>
-				
+				</div>
+			</a>				
     </>
   )
 }
