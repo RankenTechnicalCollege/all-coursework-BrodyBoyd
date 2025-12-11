@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {registerSchema} from "../schemas/loginschema";
 import { Link } from "react-router-dom";
 import {toast } from 'react-toastify';
+import Navbar from "./Navbar";
 function Register() {
   const [email, setEmail] = useState('')
   const [confirmEmail, setConfirmEmail] = useState('')
@@ -127,6 +128,8 @@ function Register() {
   }
 
   return (
+    <>
+    <Navbar />
     <div className="font-sans">
       <div className="relative min-h-screen flex flex-col sm:justify-center items-center bg-gray-100 ">
         <div className="relative sm:max-w-sm w-full">
@@ -196,6 +199,8 @@ function Register() {
         </div>
       </div>  
     </div>
+    </>
+
   );
 }
 

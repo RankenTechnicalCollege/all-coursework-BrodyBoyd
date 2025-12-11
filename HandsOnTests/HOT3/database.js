@@ -50,7 +50,7 @@ async function createProduct(product) {
 
 async function getProductByName(productName) {
   const db = await connect();
-  return db.collection('products').findOne({ name: productName });
+return db.collection('products').find({ name: { $regex: productName, $options: 'i' }}).toArray();
 }
 
 async function updateProduct(productId, updatedData) {
@@ -81,7 +81,7 @@ async function getUsers(filter, sort, limit=0, skip=0){
 
 async function getOneUser(userId){
   const db = await connect();
-  return db.collection('user').findOne({_id: userId})
+  return db.collection('user').findOne({_id: new ObjectId(userId)})
 }
 
 async function updateUser(userId, updatedData){

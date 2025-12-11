@@ -65,14 +65,15 @@ try {
     email: req.user.email,
     givenName: req.user.givenName,
     familyName: req.user.familyName,
-    Roles: req.user.role
+    role: req.user.role,
+    name: req.user.name
   })
 } catch (err) {
   res.status(401).json({error: "server error"})
 }
 })
 
-router.get('/:userId', isAuthenticated, hasRole('admin'), validId('userId'), async (req, res) => {
+router.get('/:userId', isAuthenticated, validId('userId'), async (req, res) => {
  try {
   const userId = req.userId
   const user = await getOneUser(userId)

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {loginSchema} from "../schemas/loginschema";
 import { Link } from "react-router-dom";
 import {toast } from 'react-toastify';
+import Navbar from "./Navbar";
 function Login() {
 
   const [email, setEmail] = useState('')
@@ -56,6 +57,8 @@ function Login() {
   }
 
   return (
+    <>
+    <Navbar />
     <div className="font-sans">
       <div className="relative min-h-screen flex flex-col sm:justify-center items-center bg-gray-100 ">
         <div className="relative sm:max-w-sm w-full">
@@ -97,6 +100,7 @@ function Login() {
         </div>
       </div>  
     </div>
+    </>
   );
 }
 

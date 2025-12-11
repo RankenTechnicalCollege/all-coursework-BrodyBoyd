@@ -35,6 +35,6 @@ app.listen(PORT, () => {
   debugServer(`Server is running on http://localhost:${PORT}`);
 });
 
-app.get(['/', '/Login', '/Register'], (req, res) => {
+app.get(['/', '/Login', '/Register', '/UserPage', '/YourAccount', '/ProductEditor', '/AddProductPage'], (req, res) => {
   res.sendFile(join(__dirname, 'vite-project/dist/index.html'));
 });

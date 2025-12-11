@@ -13,3 +13,25 @@ export const registerSchema = z.object({
 
 });
 
+export const userEditSchema = z.object({
+    name: z.string().min(1, "Full name is required"),
+    email: z.string().min(1, "Email is required").email("Invalid email address"),
+});
+
+export const productEditSchema = z.object({
+    name: z.string().min(1, "Product name is required"),
+    category: z.string().min(1, "Category is required"),
+    price: z.number().min(1, "Price is required").refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+        message: "Price must be a non-negative number",
+    }),
+    description: z.string().min(1, "Description is required"),
+});
+
+export const productCreateSchema = z.object({
+    name: z.string().min(1, "Product name is required"),
+    category: z.string().min(1, "Category is required"),
+    price: z.number().min(1, "Price is required").refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+        message: "Price must be a non-negative number",
+    }),
+    description: z.string().min(1, "Description is required"),
+});
