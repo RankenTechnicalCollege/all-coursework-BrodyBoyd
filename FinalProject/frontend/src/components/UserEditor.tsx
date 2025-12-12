@@ -91,14 +91,7 @@ function UserEditor({ showError, showSuccess }: { showError: (message: string) =
     }
   };
 
-  // const handleRoleChange = (role: string, checked: boolean) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     role: checked
-  //       ? [...prev.role, role]
-  //       : prev.role.filter((r) => r !== role),
-  //   }));
-  // };
+  
 
   return (
     <>

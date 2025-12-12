@@ -60,7 +60,7 @@ function BugListItem({ bug }: any ) {
 
 				<div className=" mt-8">
 					<div className="flex items-center">
-						<p>Assigned to: {bug.assignedTo ? bug.assignedTo : "No User Assigned"}</p>
+						<p>Assigned to: {bug.assignedToUserEmail ? bug.assignedToUserEmail : "No User Assigned"}</p>
 					<div className='mt-4 hover:-translate-y-1 ease-in-out transition pb-3 pl-2'>
 						<Link to='/BugEditor' state={{bug: currentBug}} ><span className="justify-center text-white border-gray-50/50 border-3 w-10/12 mt-5  bg-purple-600/30 p-2 rounded-2xl transition hover:bg-purple-400/50 ">Edit Bug</span></Link>
 					</div>

@@ -60,12 +60,23 @@ function BugEditor({ showError, showSuccess }: { showError: (message: string) =>
       if (bug.stepsToReproduce) setStepsToReproduce(bug.stepsToReproduce);
       if (bug.classification) setClassification(bug.classification);
       if (typeof bug.closed !== 'undefined') setSelectedValue(bug.closed ? 'true' : 'false');
+      if (bug.assignedToUserEmail) setSelectedUser(bug.assignedToUserEmail)
     }
     const fetchInfo = async () => {
       const userResponse = await fetch('/api/user?limit=100000');
     if (!userResponse.ok) throw new Error('Failed to fetch bugs');
     const users = await userResponse.json();
-    setUsers(users)
+    const allowedRoles = [
+      "developer",
+      "business analyst",
+      "quality analyst"
+    ];
+
+    const filteredUsers = users.filter((user: { role: string[]; }) =>
+      Array.isArray(user.role) &&
+      user.role.some((r: string) => allowedRoles.includes(r))
+    );
+    setUsers(filteredUsers)
     }
     fetchInfo();
     }, [bug]);
@@ -159,6 +170,18 @@ const classifyBug = async () => {
     console.error("Error classifying bug:", error);
   }
 }
+
+
+  const assignUser = async () => {
+    try {
+      await api.patch(`/api/bug/${bugId}/assign`, { assignedToUserEmail: selectedUser });
+      navigate('/BugList');
+      window.location.reload();
+    } catch (error) {
+      console.error("Error assigning user:", error);
+    }
+  }
+
   return (
     <>
     <section className="py-40 bg-blue-100  bg-opacity-50 h-full">
@@ -256,17 +279,24 @@ const classifyBug = async () => {
             <div className="md:w-2/3 mx-auto max-w-sm space-y-5">
             <div className="relative inline-flex">
             <svg className="w-2 h-2 absolute top-0 right-0 m-4 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 412 232"><path d="M206 171.144L42.678 7.822c-9.763-9.763-25.592-9.763-35.355 0-9.763 9.764-9.763 25.592 0 35.355l181 181c4.88 4.882 11.279 7.323 17.677 7.323s12.796-2.441 17.678-7.322l181-181c9.763-9.764 9.763-25.592 0-35.355-9.763-9.763-25.592-9.763-35.355 0L206 171.144z" fill="#648299" fill-rule="nonzero"/></svg>
-            <select onChange={(e) => (setSelectedUser(e.target.value))} className="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none">
-              <option>Choose a user</option>
+            <select
+              value={selectedUser}
+              onChange={(e) => setSelectedUser(e.target.value)}
+              className="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none"
+            >
+              <option value="">Choose a user</option>
+
               {users.map((user) => (
-                <option key={user._id} value={user._id} >{user.name} ({user.email})</option>
+                <option key={user._id} value={user.email}>
+                  {user.name} ({user.email})
+                </option>
               ))}
-              
             </select>
+
           </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
-              <button type='submit' onClick={() => classifyBug()} className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
+              <button type='button' onClick={() => assignUser()} className="text-white w-full mx-auto max-w-sm rounded-md text-center bg-indigo-600 py-2 px-4 inline-flex items-center focus:outline-none md:float-right hover:cursor-pointer">
                 Assign
               </button>
             </div>

@@ -17,8 +17,7 @@ const classifySchema = Joi.object({
     }).required();
 
 const assignSchema = Joi.object({
-    assignedToUserId: Joi.string().required(),
-    assignedToUserName: Joi.string().required()
+    assignedToUserEmail: Joi.string().required(),
     }).required();
 
 const closeSchema = Joi.object({

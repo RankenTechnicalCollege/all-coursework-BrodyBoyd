@@ -3,12 +3,12 @@ const router = express.Router();
 import joi from 'joi';
 import debug from 'debug';
 const debugBug = debug('app:BugRouter');
-import { getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, saveAuditLog, updateBugWorkLog } from '../../database.js';
+import { addCreatedBugToUser, getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, saveAuditLog, updateBugWorkLog, getUserByEmail, assignUser } from '../../database.js';
 import { createBugSchema, updateSchema, classifySchema, assignSchema, closeSchema, createCommentSchema, createTestSchema, updateTestSchema } from '../../validation/bugSchema.js'
 import { validate } from '../../middleware/joiValidator.js'
 import { validId } from '../../middleware/validId.js'
 import { isAuthenticated } from '../../middleware/isAuthenticated.js'
-import { hasAnyPermissions } from '../../middleware/hasPermissions.js';
+import { hasAnyPermissions, canEditBug } from '../../middleware/hasPermissions.js';
 
 
 
@@ -84,71 +84,83 @@ catch (err) {
 });
 //^ Working with validate 03-02
 
-router.post('/new', isAuthenticated, validate(createBugSchema), hasAnyPermissions(['canCreateBug']), async (req,res) => {
-  debugBug('Create bug endpoint called');
-  try {
-  const newBug = req.body;
-    newBug.createdOn = new Date()
-    newBug.comments = []
-    newBug.testcase = []
-    newBug.workLog = []
-    newBug.closed = false;
-    newBug.classification = "unclassified";
-    newBug.createdBy = req.user.email
+router.post('/new', isAuthenticated, validate(createBugSchema), hasAnyPermissions(['canCreateBug']), async (req, res) => {
 
-  const result = await createBug(newBug);
+    try {
+      const newBug = req.body;
+      newBug.createdOn = new Date();
+      newBug.comments = [];
+      newBug.testcase = [];
+      newBug.workLog = [];
+      newBug.closed = false;
+      newBug.classification = "unclassified";
+      newBug.createdBy = req.user.email;
 
+      // Insert bug
+      const result = await createBug(newBug);
+      
+      // Push bug into user's createdBugs array
+      await addCreatedBugToUser(req.user.email, newBug._id);
 
-  const logEntry = {
-    timeStamp: new Date(),
-    collection: "Bug",
-    operation:"insert",
-    target: result.insertedId,
-    update: JSON.stringify(newBug),
-    performedBy: req.user.email
+      // Audit log
+      const logEntry = {
+        timeStamp: new Date(),
+        collection: "Bug",
+        operation: "insert",
+        target: result.insertedId,
+        update: JSON.stringify(newBug),
+        performedBy: req.user.email
+      };
+      if (result.insertedId) {
+        res.status(201).json({ id: result.insertedId, ...newBug });
+        saveAuditLog(logEntry);
+      } else {
+        res.status(500).send('Error adding bug');
+      }
+    } catch (err) {
+      console.error("Create bug error:", err);
+      res.status(500).json({ error: 'server error' });
+    }
   }
-  
-  if (result.insertedId) {
-    res.status(201).json({ id: result.insertedId, ...newBug });
-    saveAuditLog(logEntry);
-  } else {
-    res.status(500).send('Error adding bug');
-  }} catch (err) {
-    res.status(500).json({error: 'server error'})
-  }
-});
+);
 //^ Working with validate 03-02
 
-router.patch('/:bugId', isAuthenticated, validId('bugId'), hasAnyPermissions(['canEditAnyBug']), async (req,res) => {
-  try {
-  const bugId = req.bugId;
-  const bug = await getBugById(bugId);
-    if (!bug) {
-      return res.status(404).json({ error: `bugId ${bugId} Not Found.` });
-    }
-    const updatedData = req.body;
-    updatedData.lastUpdated = new Date();
-    updatedData.lastUpdatedBy = req.user.id;
-    const result = await updateBug(bugId, updatedData);
+router.patch( '/:bugId', isAuthenticated, validId('bugId'), hasAnyPermissions(['canEditAnyBug', 'canEditMyBug', 'canEditIfAssignedTo']), canEditBug, async (req, res) => {
+    try {
+      const bugId = req.bugId; 
+      const bug = await getBugById(bugId);
 
-    const logEntry = {
-    timeStamp: new Date(),
-    collection: "Bug",
-    operation:"update",
-    target: bugId,
-    update: JSON.stringify(updatedData),
-    performedBy: req.user.email
+      if (!bug) {
+        return res.status(404).json({ error: `bugId ${bugId} Not Found.` });
+      }
+
+      const updatedData = req.body;
+      updatedData.lastUpdated = new Date();
+      updatedData.lastUpdatedBy = req.user.id;
+
+      const result = await updateBug(bugId, updatedData);
+
+      const logEntry = {
+        timeStamp: new Date(),
+        collection: "Bug",
+        operation: "update",
+        target: bugId,
+        update: JSON.stringify(updatedData),
+        performedBy: req.user.email
+      };
+
+      if (result.modifiedCount === 1) {
+        res.status(200).json({ message: `Bug ${bugId} updated!`, bugId });
+        saveAuditLog(logEntry);
+      } else {
+        res.status(404).json({ error: 'Bug not found' });
+      }
+    } catch (err) {
+      console.error("Bug update error:", err);
+      res.status(500).send('Server Error');
+    }
   }
-  
-  if (result.modifiedCount === 1) {
-    res.status(200).json({ message: `Bug ${bugId} updated!`, bugId })
-    saveAuditLog(logEntry);
-  } else {
-    res.status(404).json({error: 'Bug not found'})
-  }}
-  catch(err){
-    res.status(500).send('Server Error')
-  }});
+);
 //^ Working with validate 03-02
 
 router.patch('/:bugId/classify', isAuthenticated, validate(classifySchema), validId('bugId'),  hasAnyPermissions(['canClassifyAnyBug', 'canEditIfAssignedTo', 'canEditMyBug']), async (req,res) => {  
@@ -194,11 +206,10 @@ router.patch('/:bugId/assign', isAuthenticated, validate(assignSchema), validId(
     if (!bug) {
       return res.status(404).json({ error: `bugId ${bugId} Not Found.` });
     }
-      const newAssignments = req.body
-      newAssignments.lastUpdated = new Date();
-      newAssignments.assignedOn = new Date();
-      newAssignments.assignedBy = req.user.id
-
+    const newAssignments = req.body
+    newAssignments.lastUpdated = new Date();
+    newAssignments.assignedOn = new Date();
+    newAssignments.assignedBy = req.user.id
 
       const logEntry = {
     timeStamp: new Date(),
@@ -208,6 +219,9 @@ router.patch('/:bugId/assign', isAuthenticated, validate(assignSchema), validId(
     update: JSON.stringify(newAssignments),
     performedBy: req.user.email
   }
+      const getUserId = await getUserByEmail(newAssignments.assignedToUserEmail)
+      const userId = getUserId._id
+      const assignedBug = await assignUser(userId, bugId)
       const result = await updateBug(bugId, newAssignments)
       if (result.modifiedCount === 1) {
         res.status(200).json({ message: `Bug ${bugId} assigned!`, bugId })

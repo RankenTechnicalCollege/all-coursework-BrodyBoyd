@@ -84,6 +84,26 @@ async function deleteUser(userId){
   return result;
 }
 
+async function assignUser(userId, bugId) {
+  const db = await connect();
+  const bugObjectId = new ObjectId(bugId);
+
+  // 1. Remove this bug from ANY user who currently has it
+  await db.collection("user").updateMany(
+    { assignedBugs: bugObjectId },
+    { $pull: { assignedBugs: bugObjectId } }
+  );
+
+  // 2. Add the bug to the new user (no duplicates)
+  const result = await db.collection("user").updateOne(
+    { _id: new ObjectId(userId) },
+    { $addToSet: { assignedBugs: bugObjectId } }
+  );
+
+  return result;
+}
+
+
 //Bug endpoints 
 
 async function getBugs(filter, sort, limit=0, skip=0){
@@ -101,7 +121,7 @@ async function getBugs(filter, sort, limit=0, skip=0){
 
 async function getBugById(bugId){
   const db = await connect();
-  return db.collection('bugs').findOne({_id: bugId})
+  return db.collection('bugs').findOne({_id: new ObjectId(bugId)})
 }
 
 async function createBug(bug){
@@ -110,9 +130,18 @@ async function createBug(bug){
    return db.collection('bugs').insertOne(bug);
 }
 
+async function addCreatedBugToUser(userEmail, bugId) {
+  const db = await connect();
+  return db.collection("user").updateOne(
+    { email: userEmail },
+    { $addToSet: { createdBugs: new ObjectId(bugId) } }
+  );
+}
+
+
 async function updateBug(bugId, updatedData){
   const db = await connect();
-  const result = await db.collection('bugs').updateOne({_id: bugId}, {$set: updatedData})
+  const result = await db.collection('bugs').updateOne({_id: new ObjectId(bugId)}, {$set: updatedData})
   return result;
 }
 
@@ -175,7 +204,7 @@ async function updateBugWorkLog(bugId, workLogEntry){
   return result;
 }
 
-export { newId, connect, ping, updateBugWorkLog, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, getClient, saveAuditLog };
+export { assignUser,addCreatedBugToUser, newId, connect, ping, updateBugWorkLog, getUsers, getOneUser, getUserByEmail, registerUser, updateUser, deleteUser, getBugs, getBugById, createBug, updateBug, findBugsComments, createComment, findSpecificComment, findBugsTestCases, findSpecificTestCase, createTestcase, updateTestCase, deleteTestCase, getClient, saveAuditLog };
 
 // test the database connection
 

@@ -174,11 +174,11 @@ function UserList() {
               placeholder="Search"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && SearchWithParams()}
               className="bg-white h-10 px-5 pr-12 rounded-full text-sm focus:outline-none w-40"
             />
             <button
               onClick={() => SearchWithParams()}
-               onKeyDown={(e) => e.key === "Enter" && SearchWithParams()}
               type="button"
               className="absolute right-3"
             >
