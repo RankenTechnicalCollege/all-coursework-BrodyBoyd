@@ -23,7 +23,7 @@ import { Trash2 } from 'lucide-react';
 interface BugUpdate {
   authorEmail?: string;
   title?: string;
-  bugDescription?: string;
+  description?: string;
   stepsToReproduce?: string;
   classification?: string;
   fixedStatus?: boolean;
@@ -32,7 +32,7 @@ interface BugUpdate {
 function BugEditor({ showError, showSuccess }: { showError: (message: string) => void; showSuccess: (message: string) => void }) {
   const [title, setTitle] = useState('');
   // const [authorUsername, setAuthorUsername] = useState('');
-  const [bugDescription, setBugDescription] = useState('');
+  const [description, setDescription] = useState('');
   const [stepsToReproduce, setStepsToReproduce] = useState('');
   const [classification, setClassification] = useState('');
   const [testCaseTitle, setTestCaseTitle] = useState('');
@@ -56,7 +56,7 @@ function BugEditor({ showError, showSuccess }: { showError: (message: string) =>
   useEffect(() => {
     if (bug) {
       if (bug.title) setTitle(bug.title);
-      if (bug.description) setBugDescription(bug.description);
+      if (bug.description) setDescription(bug.description);
       if (bug.stepsToReproduce) setStepsToReproduce(bug.stepsToReproduce);
       if (bug.classification) setClassification(bug.classification);
       if (typeof bug.closed !== 'undefined') setSelectedValue(bug.closed ? 'true' : 'false');
@@ -98,7 +98,7 @@ const handleSubmit = async () => {
 
   try {
     if (title !== '') updatedData.title = title;
-    if (bugDescription !== '') updatedData.bugDescription = bugDescription;
+    if (description !== '') updatedData.description = description;
     if (stepsToReproduce !== '') updatedData.stepsToReproduce = stepsToReproduce;
     const validatedData = bugEditSchema.parse(updatedData);
     await api.patch(`/api/bug/${bugId}`, validatedData);
@@ -160,12 +160,17 @@ const addTestcase = async () => {
 
 const classifyBug = async () => {
   try {
-    const data = {classification: classification};
-    const closed = selectedValue === "true" ? true : false;
-    await api.patch(`/api/bug/${bugId}/classify`, data);
-    await api.patch(`/api/bug/${bugId}`, {closed: closed});
-    navigate('/BugList');
-    window.location.reload();
+    const checkClassify = classification.toLowerCase()
+    if (checkClassify === 'approved' || checkClassify === 'unapproved' || checkClassify === 'duplicate'){
+      const data = {classification: classification};
+      const closed = selectedValue === "true" ? true : false;
+      await api.patch(`/api/bug/${bugId}/classify`, data);
+      await api.patch(`/api/bug/${bugId}`, {closed: closed});
+      navigate('/BugList');
+      window.location.reload();
+    } else {
+      showError("Classification Type Not Allowed, try Approved, Unapproved, or Duplicate");
+    }
   } catch (error) {
     console.error("Error classifying bug:", error);
   }
@@ -225,12 +230,12 @@ const classifyBug = async () => {
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
                     // placeholder={bug.description}
-                    value={bugDescription}
-                    onChange={(e) => setBugDescription(e.target.value)}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
-                {validationErrors.bugDescription && (
-                <p className="text-sm text-red-500">{validationErrors.bugDescription}</p>
+                {validationErrors.description && (
+                <p className="text-sm text-red-500">{validationErrors.description}</p>
               )}
               </div>
               <div>
@@ -313,7 +318,7 @@ const classifyBug = async () => {
                   <input
                     type="text"
                     className="w-11/12 focus:outline-none focus:text-gray-600 p-2"
-                    // placeholder={bug.classification}
+                    placeholder='approved/unapproved/duplicate'
                     value={classification}
                     onChange={(e) => setClassification(e.target.value)}
                   />

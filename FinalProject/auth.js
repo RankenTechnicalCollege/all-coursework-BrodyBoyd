@@ -8,8 +8,13 @@ const client = await getClient();
 const db = await connect();
 
 export const auth = betterAuth({
+  cookies: {
+    domain: "https://issuetracker-service-627308096057.us-central1.run.app",
+    secure: true,
+    sameSite: "none",
+  },
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:8080",
-  trustedOrigins: ["http://localhost:5173", "http://localhost:8080","http://localhost:3000", "https://issuetracker-service-627308096057.us-central1.run.app/"],
+  trustedOrigins: ["http://localhost:5173", "http://localhost:8080","http://localhost:3000", "https://issuetracker-service-627308096057.us-central1.run.app"],
     database: mongodbAdapter(db, {
       client
     }),

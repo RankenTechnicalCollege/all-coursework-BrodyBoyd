@@ -8,6 +8,7 @@ import { createBugSchema, updateSchema, classifySchema, assignSchema, closeSchem
 import { validate } from '../../middleware/joiValidator.js'
 import { validId } from '../../middleware/validId.js'
 import { isAuthenticated } from '../../middleware/isAuthenticated.js'
+import { hasRole } from '../../middleware/hasRole.js'
 import { hasAnyPermissions, canEditBug } from '../../middleware/hasPermissions.js';
 
 
@@ -93,7 +94,7 @@ router.post('/new', isAuthenticated, validate(createBugSchema), hasAnyPermission
       newBug.testcase = [];
       newBug.workLog = [];
       newBug.closed = false;
-      newBug.classification = "unclassified";
+      newBug.classification = "unapproved";
       newBug.createdBy = req.user.email;
 
       // Insert bug
@@ -163,7 +164,7 @@ router.patch( '/:bugId', isAuthenticated, validId('bugId'), hasAnyPermissions(['
 );
 //^ Working with validate 03-02
 
-router.patch('/:bugId/classify', isAuthenticated, validate(classifySchema), validId('bugId'),  hasAnyPermissions(['canClassifyAnyBug', 'canEditIfAssignedTo', 'canEditMyBug']), async (req,res) => {  
+router.patch('/:bugId/classify', isAuthenticated, validate(classifySchema), validId('bugId'),  hasAnyPermissions(['canClassifyAnyBug', 'canEditIfAssignedTo', 'canEditMyBug']), canEditBug, async (req,res) => {  
   try {
     const bugId = req.bugId;
     const bug = await getBugById(bugId);
@@ -199,7 +200,7 @@ router.patch('/:bugId/classify', isAuthenticated, validate(classifySchema), vali
 });
 //^ Working with validate 03-02
 
-router.patch('/:bugId/assign', isAuthenticated, validate(assignSchema), validId('bugId'), hasAnyPermissions(['canReassignAnyBug', 'canReassignIfAssignedTo', 'canEditMyBug']), async (req,res) => {
+router.patch('/:bugId/assign', isAuthenticated, validate(assignSchema), validId('bugId'), hasAnyPermissions(['canReassignAnyBug', 'canReassignIfAssignedTo', 'canEditMyBug']), canEditBug, async (req,res) => {
   try {
   const bugId = req.bugId;
   const bug = await getBugById(bugId);
@@ -456,7 +457,7 @@ router.delete('/:bugId/tests/:testId', isAuthenticated, validId('bugId'), validI
 
 //Work log 
 
-router.patch('/:bugId/worklog', isAuthenticated, validId('bugId'), hasAnyPermissions(['canEditAnyBug']), async (req,res) => {
+router.patch('/:bugId/worklog', isAuthenticated, validId('bugId'), hasRole('developer'), async (req,res) => {
   try {
   const bugId = req.bugId;
   const workLogEntry = req.body;

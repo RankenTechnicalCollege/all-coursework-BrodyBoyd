@@ -44,7 +44,7 @@ router.get('', isAuthenticated, hasAnyPermissions(['canViewData']), async (req, 
       givenName: {givenName: 1, familyName: 1, createdAt: 1},
       oldest: {createdAt: 1}
     };
-    const sort = sortOptions[sortBy] || {givenName: -1}
+    const sort = sortOptions[sortBy] || {givenName: 1}
     
 
     const users = await getUsers(filter, sort, limitNum, skip);

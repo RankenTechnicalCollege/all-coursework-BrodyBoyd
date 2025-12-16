@@ -145,6 +145,7 @@ export const canEditBug = async (req, res, next) => {
     const canEditIfAssignedTo = userPermissions.includes("canEditIfAssignedTo");
     const canEditMyBug = userPermissions.includes("canEditMyBug");
     const canEditAnyBug = userPermissions.includes("canEditAnyBug");
+    const canReassignIfAssignedTo = userPermissions.includes("canReassignIfAssignedTo")
 
     // 1. Full access
     if (canEditAnyBug) {
@@ -152,12 +153,16 @@ export const canEditBug = async (req, res, next) => {
     }
 
     // 2. Assigned-to rule
-    if (canEditIfAssignedTo && bug.assignedTo === userEmail) {
+    if (canEditIfAssignedTo && bug.assignedToUserEmail === userEmail) {
       return next();
     }
 
     // 3. Created-by rule
     if (canEditMyBug && bug.createdBy === userEmail) {
+      return next();
+    }
+
+    if (canReassignIfAssignedTo && bug.assignedTo === userEmail) {
       return next();
     }
 

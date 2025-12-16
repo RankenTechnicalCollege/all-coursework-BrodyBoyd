@@ -2,6 +2,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const api = axios.create({
+  // baseURL: import.meta.env.VITE_API_URL || 'https://issuetracker-service-627308096057.us-central1.run.app/',
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/',
   withCredentials: true,
 });

@@ -1,15 +1,39 @@
 import { Link } from 'react-router-dom'
 import { authClient } from '../auth-client'
-// import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import api from '../api'
 
 type NavbarProps = {
     onLogout: () => void
 }
 
 function Navbar({ onLogout }: NavbarProps) {
+    const [roles, setRoles] = useState<string[]>([])
     const { 
         data: session, 
     } = authClient.useSession()
+
+useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get(`/api/user/me`);
+        const userData = response.data;
+        if (userData) {
+          
+          if (userData.role) {
+            if (Array.isArray(userData.role)) {
+              setRoles(userData.role.map((r: any) => (typeof r === 'string' ? r.toLowerCase() : r)));
+            } else if (typeof userData.role === 'string') {
+              setRoles([userData.role.toLowerCase()]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    }
+    fetchUserData();
+  }, []);
 
 function onClickLogout() {
     
@@ -42,7 +66,7 @@ function onClickLogout() {
                     <Link to='/' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Home</Link>
                     <Link to='/BugList' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Bugs</Link>
                     <Link to='/UserList' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Users</Link>
-                    <Link to='/Dashboard' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">dash</Link>
+                    {roles.includes('admin') && <Link to='/Dashboard' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mr-4">Admin Dashboard</Link>}
                 </div>
 
                 <div className="hidden sm:flex sm:items-center">
@@ -74,6 +98,8 @@ function onClickLogout() {
                 <Link to="/" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Home</Link>
                 <Link to="/BugList" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Bugs</Link>
                 <Link to="/UserList" className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Users</Link>
+                {roles.includes('admin') && <Link to='/Dashboard' className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">Admin Dashboard</Link>}
+
             <div className="flex justify-between items-center border-t-2 pt-2">
                 <Link to="/YourAccount"  className="text-gray-800 text-sm font-semibold hover:text-purple-600 mb-1">My Account</Link>
                 <Link to="/" className="text-gray-800 text-sm font-semibold border px-4 py-1 rounded-lg hover:text-purple-600 hover:border-purple-600"  onClick={onClickLogout}>Log Out</Link>
