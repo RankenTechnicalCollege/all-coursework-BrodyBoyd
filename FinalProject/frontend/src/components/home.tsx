@@ -1,4 +1,3 @@
-import {Link} from 'react-router-dom'
 
 function Home() {
 
@@ -24,7 +23,7 @@ function Home() {
 						<h2 className="font-black text-sky-950 text-3xl mb-4">As the leading experts in this field, we're in over 90 countries</h2>
 						<p className="text-base text-sky-950">View Some of our partners below</p>
 					</div>
-					<Link to='/Register' className="text-sky-950 uppercase py-3 text-base px-10 border border-sky-950 hover:bg-sky-950 hover:bg-opacity-10">Sign up with us!</Link>
+					<button className="text-sky-950 uppercase py-3 text-base px-10 border border-sky-950 hover:bg-sky-950 hover:bg-opacity-10">Sign up your business with us!</button>
 				</div>
 			</div>
 			<div className="py-12 relative overflow-hidden bg-white">

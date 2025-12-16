@@ -35,7 +35,7 @@ function Dashboard() {
 
   return (
     <>
-    <main className="h-[calc(100vh-120px)] w-full absolute top-14">
+    <div className="h-screen w-full  top-14">
         <section id="content"
             className="w-[100wh-60px] lg:w-[100wh-250px] p-5 right-0 transition-all duration-500 ease-in-out">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -105,7 +105,7 @@ function Dashboard() {
                 </div>
             </div>
         </section>
-      </main>
+      </div>
     </>
   )
 }
