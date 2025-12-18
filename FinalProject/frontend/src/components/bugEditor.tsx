@@ -5,7 +5,9 @@ import bugEditSchema from '../schemas/bugEditSchema'
 import {z} from 'zod';
 import api from '../api';
 import { Trash2 } from 'lucide-react';
-
+import testcaseSchema from '../schemas/testcaseSchema'
+import logHourSchema from '../schemas/logHourSchema';
+import commentSchema from '../schemas/commentSchema';
 // type Bug = {
 // 	title: string,
 // 	authorUsername: string,
@@ -124,39 +126,78 @@ const handleSubmit = async () => {
 const addComment = async () => {
   try {
     console.log(selectedUser)
-    const text = commentText;
-    await api.post(`/api/bug/${bugId}/comments`, { text });
+    const text = {text: commentText};
+    const validatedData = commentSchema.parse(text)
+    await api.post(`/api/bug/${bugId}/comments`, validatedData);
     navigate('/BugList');
     window.location.reload();
-  } catch (error) {
-    console.error("Error updating profile:", error);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+            const fieldErrors: Record<string, string> = {};
+            err.issues.forEach((issue) => {
+              if (issue.path.length > 0) {
+                fieldErrors[issue.path[0] as string] = issue.message;
+              }
+            });
+            setValidationErrors(fieldErrors);
+            return;
+          }
+    showError("Failed to update Bug");
+    console.error("Error updating profile:", err);
   }
 };
 //add zod validation ^
 
 const logHours = async () => {
   try {
-    const time = Number(loggedHours);
-    await api.patch(`/api/bug/${bugId}/worklog`, { time });
+    const time = { time: Number(loggedHours)};
+    const validatedData = logHourSchema.parse(time)
+    await api.patch(`/api/bug/${bugId}/worklog`, validatedData);
     navigate('/BugList');
     window.location.reload();
-  } catch (error) {
-    console.error("Error logging hours:", error);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+            const fieldErrors: Record<string, string> = {};
+            err.issues.forEach((issue) => {
+              if (issue.path.length > 0) {
+                fieldErrors[issue.path[0] as string] = issue.message;
+              }
+            });
+            setValidationErrors(fieldErrors);
+            return;
+          }
+    showError("Failed to update Bug");
+    console.error("Error updating profile:", err);
   }
 }
-//add zod validation ^
 
 const addTestcase = async () => {
   try {
-    const data = {title: testCaseTitle, status: testcaseStatus, description: testcaseDescription};
-    await api.post(`/api/bug/${bugId}/tests`, data);
+    const testcaseInfo = {
+      title: testCaseTitle, 
+      status: testcaseStatus,
+      description: testcaseDescription
+    }
+
+    const validatedData = testcaseSchema.parse(testcaseInfo);
+    await api.post(`/api/bug/${bugId}/tests`, validatedData);
     navigate('/BugList');
     window.location.reload();
-  } catch (error) {
-    console.error("Error adding testcase:", error);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+            const fieldErrors: Record<string, string> = {};
+            err.issues.forEach((issue) => {
+              if (issue.path.length > 0) {
+                fieldErrors[issue.path[0] as string] = issue.message;
+              }
+            });
+            setValidationErrors(fieldErrors);
+            return;
+          }
+    showError("Failed to update Bug");
+    console.error("Error updating profile:", err);
   }
 }
-//add zod validation ^
 
 const classifyBug = async () => {
   try {
@@ -420,6 +461,9 @@ const classifyBug = async () => {
                     onChange={(e) => setTestCaseTitle(e.target.value)}
                   />
                 </div>
+                {validationErrors.title && (
+                <p className="text-sm text-red-500">{validationErrors.title}</p>
+              )}
               </div>
               
               <div>
@@ -435,6 +479,9 @@ const classifyBug = async () => {
                     onChange={(e) => setTestcaseStatus(e.target.value)}
                   />
                 </div>
+                {validationErrors.status && (
+                <p className="text-sm text-red-500">{validationErrors.status}</p>
+              )}
               </div>
               <div>
                 <label className="text-sm text-gray-800">Description</label>
@@ -449,6 +496,9 @@ const classifyBug = async () => {
                     onChange={(e) => setTestcaseDescription(e.target.value)}
                   />
                 </div>
+                {validationErrors.description && (
+                <p className="text-sm text-red-500">{validationErrors.description}</p>
+              )}
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
@@ -493,6 +543,9 @@ const classifyBug = async () => {
                     onChange={(e) => setCommentText(e.target.value)}
                   />
                 </div>
+                {validationErrors.text && (
+                <p className="text-sm text-red-500">{validationErrors.text}</p>
+              )}
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">
@@ -518,6 +571,9 @@ const classifyBug = async () => {
                     onChange={(e) => setLoggedHours(e.target.value)}
                   />
                 </div>
+                {validationErrors.time && (
+                <p className="text-sm text-red-500">{validationErrors.time}</p>
+              )}
               </div>
             </div>
             <div className="md:w-3/12 text-center md:pl-6">

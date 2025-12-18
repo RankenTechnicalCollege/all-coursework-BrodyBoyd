@@ -114,7 +114,7 @@ function Register() {
 
   return (
     <>
-     <div className='bg-blue-300 w-screen flex justify-center flex-1 py-6'> 
+     <div className='bg-blue-300 w-screen min-h-screen flex justify-center flex-1 py-6'> 
       <div className="flex justify-center flex-1 items-start px-6 ">
         <div className="w-full xl:w-3/4 lg:w-11/12 flex max-h-[calc(100vh-200px)] overflow-y-auto">
           <div
